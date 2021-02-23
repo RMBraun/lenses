@@ -1,0 +1,27 @@
+{
+  "name": "@rybr/lenses",
+  "version": "1.0.1",
+  "description": "a simple and light package meant to ease data traversal, manipulation, mutation, and transformation",
+  "main": "lenses.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RMBraun/lenses.git"
+  },
+  "keywords": [
+    "partial-lenses",
+    "lenses",
+    "data",
+    "traversal",
+    "mutation",
+    "transformation"
+  ],
+  "author": "Ryan Braun",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/RMBraun/lenses/issues"
+  },
+  "homepage": "https://github.com/RMBraun/lenses#readme"
+}
