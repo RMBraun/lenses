@@ -1,10 +1,11 @@
 {
   "name": "@rybr/lenses",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "a simple and light package meant to ease data traversal, manipulation, mutation, and transformation",
   "main": "lenses.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
@@ -23,5 +24,13 @@
   "bugs": {
     "url": "https://github.com/RMBraun/lenses/issues"
   },
-  "homepage": "https://github.com/RMBraun/lenses#readme"
+  "homepage": "https://github.com/RMBraun/lenses#readme",
+  "devDependencies": {
+    "@babel/core": "^7.13.1",
+    "@babel/preset-env": "^7.13.5",
+    "babel-loader": "^8.2.2",
+    "glob": "^7.1.6",
+    "webpack": "^5.24.1",
+    "webpack-cli": "^4.5.0"
+  }
 }
