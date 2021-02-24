@@ -126,8 +126,8 @@ import { get, defaults, set, func, parse, stringify, map, filter, ...rest } from
 //explicity import
 import { get, defaults } from '@rybr/lenses/get'
 import { set } from '@rybr/lenses/set'
-import { func, parse, stringify } from '@rybr/lenses/funcs'
-import { map, filter, slice } from '@rybr/lenses/protos'
+import { func, parse, stringify, ...rest } from '@rybr/lenses/funcs'
+import { map, filter, slice, ...rest } from '@rybr/lenses/protos'
 ```
 
 ## Browsers / \<script>
