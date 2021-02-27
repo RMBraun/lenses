@@ -1,1 +1,176 @@
-(()=>{var e={743:e=>{function r(e,r){var t=Object.keys(e);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(e);r&&(n=n.filter((function(r){return Object.getOwnPropertyDescriptor(e,r).enumerable}))),t.push.apply(t,n)}return t}function t(e){for(var t=1;t<arguments.length;t++){var o=null!=arguments[t]?arguments[t]:{};t%2?r(Object(o),!0).forEach((function(r){n(e,r,o[r])})):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(o)):r(Object(o)).forEach((function(r){Object.defineProperty(e,r,Object.getOwnPropertyDescriptor(o,r))}))}return e}function n(e,r,t){return r in e?Object.defineProperty(e,r,{value:t,enumerable:!0,configurable:!0,writable:!0}):e[r]=t,e}var o=function(e){return null==e?"".concat(e):e.constructor?e.constructor.name:"Unknown"},a={getType:function(e){var r=o(e);return r===a.STRING&&e.trim().length>0?a.STRING:r===a.INDEX&&e>=0?a.INDEX:r===a.FUNCTION?a.FUNCTION:a.INVALID},STRING:String.name,FUNCTION:Function.name,INDEX:Number.name,INVALID:"INVALID"};e.exports={getConstructorName:o,OPERATION_TYPES:a,loadGlobal:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};"undefined"!=typeof window&&(window.L=t(t({},window.L),e))}}},17:(e,r,t)=>{var n=t(743),o=n.loadGlobal,a=n.getConstructorName,c=n.OPERATION_TYPES,i=function(){for(var e=arguments.length,r=new Array(e),t=0;t<e;t++)r[t]=arguments[t];return function(e){if(0===r.length)return e;var t=[].concat(r),n=t.pop(),o=e;return t.map((function(e,r){var n=c.getType(e);if(n!==c.STRING&&n!==c.INDEX)throw new Error("Invalid Set operation at index: ".concat(r,": expecting a String or Number but received ").concat(a(e)));return{operation:e,operationType:n,defaultValue:c.getType(t[r+1])===c.STRING?{}:[]}})).forEach((function(e,r,t){var c=e.operation,i=e.defaultValue;o=o[c]=r===t.length-1?a(n)===Function.name?n(o[c]):n:null!=o[c]?o[c]:i})),e}};e.exports={_set:i,set:function(e){for(var r=arguments.length,t=new Array(r>1?r-1:0),n=1;n<r;n++)t[n-1]=arguments[n];return i.apply(void 0,t)(e)}},o(e.exports)}},r={};!function t(n){if(r[n])return r[n].exports;var o=r[n]={exports:{}};return e[n](o,o.exports,t),o.exports}(17)})();
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 914:
+/***/ ((module) => {
+
+const getConstructorName = (input) =>
+  input == null ? `${input}` : input.constructor ? input.constructor.name : 'Unknown'
+
+const getOperationType = (operation) =>
+  TYPES.STRING.is(operation) && operation.trim().length > 0
+    ? TYPES.STRING
+    : TYPES.NUMBER.is(operation) && operation >= 0
+    ? TYPES.NUMBER
+    : TYPES.FUNCTION.is(operation)
+    ? TYPES.FUNCTION
+    : TYPES.INVALID
+
+const isType = (input, type, typeofName, constructor) =>
+  input === type ||
+  typeof input === typeofName ||
+  input instanceof constructor ||
+  getConstructorName(input) === constructor.name
+
+const TYPES = {
+  STRING: {
+    is: (input) => isType(input, TYPES.STRING, 'string', String),
+  },
+  FUNCTION: {
+    is: (input) => isType(input, TYPES.FUNCTION, 'function', Function),
+  },
+  NUMBER: {
+    is: (input) => isType(input, TYPES.NUMBER, 'number', Number),
+  },
+  OBJECT: {
+    is: (input) => isType(input, TYPES.OBJECT, 'object', Object),
+  },
+  ARRAY: {
+    is: (input) => input === TYPES.ARRAY || Array.isArray(input),
+  },
+  INVALID: {
+    is: (input) => input === TYPES.INVALID,
+  },
+}
+
+//for browser static import
+const loadGlobal = (globals = {}) => {
+  if (typeof window !== 'undefined') {
+    window.L = {
+      ...window.L,
+      ...globals,
+    }
+  }
+}
+
+module.exports = {
+  getConstructorName,
+  getOperationType,
+  TYPES,
+  loadGlobal,
+}
+
+
+/***/ }),
+
+/***/ 452:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const { loadGlobal, getConstructorName, TYPES, getOperationType } = __webpack_require__(914)
+
+const getChild = (input, operation, defaultValue, i) => {
+  if (input == null) {
+    return defaultValue
+  }
+  if (TYPES.STRING.is(operation) && !TYPES.OBJECT.is(input)) {
+    throw new Error(
+      `Invalid Set operation at index: ${i}: cannot get key ${operation} from ${getConstructorName(input)}`
+    )
+  } else if (TYPES.NUMBER.is(operation) && !TYPES.ARRAY.is(input)) {
+    throw new Error(
+      `Invalid Set operation at index: ${i}: cannot get index ${operation} from ${getConstructorName(input)}`
+    )
+  } else {
+    return input[operation]
+  }
+}
+
+//Curried version
+const _set = (...operationInputs) => (input) => {
+  //default return
+  if (operationInputs.length === 0) {
+    return input
+  }
+
+  const rawOperations = [...operationInputs]
+  const value = rawOperations.pop()
+  let objectRef = input
+
+  rawOperations
+    //operation validation
+    .map((operation, i) => {
+      const operationType = getOperationType(operation)
+
+      if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
+        throw new Error(
+          `Invalid Set operation at index: ${i}: expecting a String or Number but received ${getConstructorName(
+            operation
+          )}`
+        )
+      }
+
+      const nextOperationType = getOperationType(rawOperations[i + 1])
+
+      return {
+        operation,
+        defaultValue: TYPES.STRING.is(nextOperationType) ? {} : [],
+      }
+    })
+    //operation execution
+    .forEach(({ operation, defaultValue }, i, operations) => {
+      objectRef = objectRef[operation] =
+        i === operations.length - 1
+          ? TYPES.FUNCTION.is(value)
+            ? value(objectRef[operation])
+            : value
+          : getChild(objectRef, operation, defaultValue, i)
+    })
+
+  return input
+}
+
+module.exports = {
+  _set,
+  set: (input, ...operationInputs) => _set(...operationInputs)(input),
+}
+
+//for browser static import
+loadGlobal(module.exports)
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		if(__webpack_module_cache__[moduleId]) {
+/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(452);
+/******/ 	
+/******/ })()
+;

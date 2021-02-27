@@ -1,4 +1,4 @@
-const { loadGlobal, getConstructorName } = require('./helpers')
+const { loadGlobal, getConstructorName, TYPES } = require('./helpers')
 
 module.exports.log = (customInput, prettify = true) => (input) => {
   const output = customInput ? `${customInput} ${input}` : input
@@ -9,7 +9,7 @@ module.exports.log = (customInput, prettify = true) => (input) => {
 }
 
 module.exports.func = (userFunction) => {
-  if (getConstructorName(userFunction) !== Function.name) {
+  if (!TYPES.FUNCTION.is(userFunction)) {
     throw new Error(`func must take a function as an input, received ${getConstructorName(userFunction)} instead`)
   }
 

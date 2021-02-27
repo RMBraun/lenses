@@ -1,1 +1,130 @@
-(()=>{var n={472:(n,t,r)=>{var e=r(743),o=e.loadGlobal,c=e.getConstructorName;n.exports.log=function(n){var t=!(arguments.length>1&&void 0!==arguments[1])||arguments[1];return function(r){var e=n?"".concat(n," ").concat(r):r;return console.log(t?JSON.stringify(e,null,2):JSON.stringify(e)),r}},n.exports.func=function(n){if(c(n)!==Function.name)throw new Error("func must take a function as an input, received ".concat(c(n)," instead"));return function(t){return null==t?t:n(t)}},n.exports.parse=function(n){return null==n?n:JSON.parse(n)},n.exports.stringify=function(n){return null==n?n:JSON.stringify(n)},o(n.exports)},743:n=>{function t(n,t){var r=Object.keys(n);if(Object.getOwnPropertySymbols){var e=Object.getOwnPropertySymbols(n);t&&(e=e.filter((function(t){return Object.getOwnPropertyDescriptor(n,t).enumerable}))),r.push.apply(r,e)}return r}function r(n){for(var r=1;r<arguments.length;r++){var o=null!=arguments[r]?arguments[r]:{};r%2?t(Object(o),!0).forEach((function(t){e(n,t,o[t])})):Object.getOwnPropertyDescriptors?Object.defineProperties(n,Object.getOwnPropertyDescriptors(o)):t(Object(o)).forEach((function(t){Object.defineProperty(n,t,Object.getOwnPropertyDescriptor(o,t))}))}return n}function e(n,t,r){return t in n?Object.defineProperty(n,t,{value:r,enumerable:!0,configurable:!0,writable:!0}):n[t]=r,n}var o=function(n){return null==n?"".concat(n):n.constructor?n.constructor.name:"Unknown"},c={getType:function(n){var t=o(n);return t===c.STRING&&n.trim().length>0?c.STRING:t===c.INDEX&&n>=0?c.INDEX:t===c.FUNCTION?c.FUNCTION:c.INVALID},STRING:String.name,FUNCTION:Function.name,INDEX:Number.name,INVALID:"INVALID"};n.exports={getConstructorName:o,OPERATION_TYPES:c,loadGlobal:function(){var n=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};"undefined"!=typeof window&&(window.L=r(r({},window.L),n))}}}},t={};!function r(e){if(t[e])return t[e].exports;var o=t[e]={exports:{}};return n[e](o,o.exports,r),o.exports}(472)})();
+/******/ (() => { // webpackBootstrap
+/******/ 	var __webpack_modules__ = ({
+
+/***/ 244:
+/***/ ((module, __unused_webpack_exports, __webpack_require__) => {
+
+const { loadGlobal, getConstructorName, TYPES } = __webpack_require__(914)
+
+module.exports.log = (customInput, prettify = true) => (input) => {
+  const output = customInput ? `${customInput} ${input}` : input
+
+  console.log(prettify ? JSON.stringify(output, null, 2) : JSON.stringify(output))
+
+  return input
+}
+
+module.exports.func = (userFunction) => {
+  if (!TYPES.FUNCTION.is(userFunction)) {
+    throw new Error(`func must take a function as an input, received ${getConstructorName(userFunction)} instead`)
+  }
+
+  return (input) => (input == null ? input : userFunction(input))
+}
+
+module.exports.parse = (input) => (input == null ? input : JSON.parse(input))
+
+module.exports.stringify = (input) => (input == null ? input : JSON.stringify(input))
+
+//for browser static import
+loadGlobal(module.exports)
+
+
+/***/ }),
+
+/***/ 914:
+/***/ ((module) => {
+
+const getConstructorName = (input) =>
+  input == null ? `${input}` : input.constructor ? input.constructor.name : 'Unknown'
+
+const getOperationType = (operation) =>
+  TYPES.STRING.is(operation) && operation.trim().length > 0
+    ? TYPES.STRING
+    : TYPES.NUMBER.is(operation) && operation >= 0
+    ? TYPES.NUMBER
+    : TYPES.FUNCTION.is(operation)
+    ? TYPES.FUNCTION
+    : TYPES.INVALID
+
+const isType = (input, type, typeofName, constructor) =>
+  input === type ||
+  typeof input === typeofName ||
+  input instanceof constructor ||
+  getConstructorName(input) === constructor.name
+
+const TYPES = {
+  STRING: {
+    is: (input) => isType(input, TYPES.STRING, 'string', String),
+  },
+  FUNCTION: {
+    is: (input) => isType(input, TYPES.FUNCTION, 'function', Function),
+  },
+  NUMBER: {
+    is: (input) => isType(input, TYPES.NUMBER, 'number', Number),
+  },
+  OBJECT: {
+    is: (input) => isType(input, TYPES.OBJECT, 'object', Object),
+  },
+  ARRAY: {
+    is: (input) => input === TYPES.ARRAY || Array.isArray(input),
+  },
+  INVALID: {
+    is: (input) => input === TYPES.INVALID,
+  },
+}
+
+//for browser static import
+const loadGlobal = (globals = {}) => {
+  if (typeof window !== 'undefined') {
+    window.L = {
+      ...window.L,
+      ...globals,
+    }
+  }
+}
+
+module.exports = {
+  getConstructorName,
+  getOperationType,
+  TYPES,
+  loadGlobal,
+}
+
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		if(__webpack_module_cache__[moduleId]) {
+/******/ 			return __webpack_module_cache__[moduleId].exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __webpack_require__(244);
+/******/ 	
+/******/ })()
+;

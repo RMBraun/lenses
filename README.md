@@ -2,7 +2,7 @@
 
 This package will help facilitate data retrieval, mutation, and transformation. It's aim is to:
 
-- stay small ~6kb uncompressed for everything
+- stay small ~7kb minified
 - alleviate the need for `null` checking
 - easily allow pipe/compose/chaining of data flows
 - allow for a default value to be returned instead of `null` or `undefined` at <b>any point</b> within the chain
@@ -134,16 +134,16 @@ import { map, filter, slice, ...rest } from '@rybr/lenses/protos'
 
 ```html
 //production (everything)
-<script src="https://unpkg.com/@rybr/lenses/dist/lenses.js"></script>
+<script src="https://unpkg.com/@rybr/lenses/dist/lenses.min.js"></script>
 
 //development (everything)
 <script src="https://unpkg.com/@rybr/lenses/lenses.js"></script>
 
 //production (explicity import)
-<script src="https://unpkg.com/@rybr/lenses/dist/get.js"></script>
-<script src="https://unpkg.com/@rybr/lenses/dist/set.js"></script>
-<script src="https://unpkg.com/@rybr/lenses/dist/funcs.js"></script>
-<script src="https://unpkg.com/@rybr/lenses/dist/protos.js"></script>
+<script src="https://unpkg.com/@rybr/lenses/dist/get.min.js"></script>
+<script src="https://unpkg.com/@rybr/lenses/dist/set.min.js"></script>
+<script src="https://unpkg.com/@rybr/lenses/dist/funcs.min.js"></script>
+<script src="https://unpkg.com/@rybr/lenses/dist/protos.min.js"></script>
 
 //development (explicity import)
 <script src="https://unpkg.com/@rybr/lenses/get.js"></script>
@@ -153,6 +153,16 @@ import { map, filter, slice, ...rest } from '@rybr/lenses/protos'
 ```
 
 Note: This will automatically fetch the latest version. This will load globally into `window.L`
+
+## SalesForce Controlers
+
+Download the desired script from https://unpkg.com/@rybr/sfcc/lenses.js. <br/> I recommend placing this script in `*/cartridge/scripts/util/lenses` <br/> Use `require` from within the controllers like normal. <br/> These scripts have been bundled as `commonJs` modules and have been translated to base ES5 so they should work in the controllers.
+
+```javascript
+const L = require('*/cartridge/scripts/util/lenses')
+```
+
+Note: only modify Objects and Arrays or any Class that extends one of these
 
 ---
 
@@ -170,7 +180,7 @@ Wraps the function `unsafeFunction` so that it returns the `input` if the input 
 
 <br/>
 
-## \_apply(prototypeName)(input)
+## apply(prototypeName)(input)
 
 > part of `funcs.js`
 
@@ -193,12 +203,16 @@ Attempts to use the prototype function of the given `input` specified by `protot
 If `input` is `null` or `undefined` then return `defaultValue` else return `input`
 
 <br/>
+
 ## Prototype functions
+
 > part of `protos.js`
 
 Most prototype functions are available
 
 ---
+
+<br/>
 
 # Examples
 

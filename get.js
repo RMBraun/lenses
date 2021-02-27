@@ -1,12 +1,12 @@
-const { loadGlobal, getConstructorName, OPERATION_TYPES } = require('./helpers')
+const { loadGlobal, getConstructorName, TYPES, getOperationType } = require('./helpers')
 
 const getProperty = (property, source, i) => {
   if (source == null) {
     return source
   }
 
-  if (getConstructorName(source) !== Object.name) {
-    throw new Error(`At index ${i}: cannot get property for a non object`)
+  if (!TYPES.OBJECT.is(source)) {
+    throw new Error(`At index ${i}: cannot get property for a non Object type`)
   }
 
   return source[property]
@@ -17,38 +17,33 @@ const getIndex = (index, source, i) => {
     return source
   }
 
-  if (getConstructorName(source) !== Array.name) {
-    throw new Error(`At index ${i}: cannot get index for a non array object`)
+  if (!TYPES.ARRAY.is(source)) {
+    throw new Error(`At index ${i}: cannot get index for a non Array type`)
   }
 
   return source[index]
 }
 
 const applyFunction = (func, source, i) => {
-  if (getConstructorName(func) !== Function.name) {
-    throw new Error(`At index ${i}: cannot apply function since it is not a function`)
+  if (!TYPES.FUNCTION.is(func)) {
+    throw new Error(`At index ${i}: cannot apply function since it is not a Function`)
   }
 
   return func(source)
 }
 
-const performOperation = ({ operation, operationType }, source, i) => {
-  if (source == null) {
-    if (operationType === OPERATION_TYPES.STRING || operationType === OPERATION_TYPES.INDEX) {
-      return source
-    }
-  }
-
-  if (operationType === OPERATION_TYPES.STRING) {
-    return getProperty(operation, source, i)
-  } else if (operationType === OPERATION_TYPES.INDEX) {
-    return getIndex(operation, source, i)
-  } else if (operationType === OPERATION_TYPES.FUNCTION) {
-    return applyFunction(operation, source, i)
-  }
-
-  return source
-}
+const performOperation = ({ operation, type }, source, i) =>
+  source == null
+    ? !TYPES.FUNCTION.is(type)
+      ? source
+      : applyFunction(operation, source, i)
+    : TYPES.STRING.is(type)
+    ? getProperty(operation, source, i)
+    : TYPES.NUMBER.is(type)
+    ? getIndex(operation, source, i)
+    : TYPES.FUNCTION.is(type)
+    ? applyFunction(operation, source, i)
+    : source
 
 //Curried version
 const _get = (...operationInputs) => (input) => {
@@ -63,11 +58,11 @@ const _get = (...operationInputs) => (input) => {
     operations
       //operation validation
       .map((operation, i) => {
-        const operationType = OPERATION_TYPES.getType(operation)
+        const type = getOperationType(operation)
 
-        if (operationType === OPERATION_TYPES.INVALID) {
+        if (TYPES.INVALID.is(type)) {
           throw new Error(
-            `Invalid Get operation at index ${i}: expecting String, Index, or Function but received ${getConstructorName(
+            `Invalid Get operation at index ${i}: expecting String, Number, or Function but received ${getConstructorName(
               operation
             )}`
           )
@@ -75,17 +70,11 @@ const _get = (...operationInputs) => (input) => {
 
         return {
           operation,
-          operationType,
+          type,
         }
       })
       //operation execution
-      .reduce((acc, operationInfo, i) => {
-        if (operationInfo) {
-          return performOperation(operationInfo, acc, i)
-        } else {
-          return acc
-        }
-      }, input)
+      .reduce((acc, operationInfo, i) => performOperation(operationInfo, acc, i), input)
   )
 }
 

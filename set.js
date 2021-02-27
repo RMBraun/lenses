@@ -1,4 +1,21 @@
-const { loadGlobal, getConstructorName, OPERATION_TYPES } = require('./helpers')
+const { loadGlobal, getConstructorName, TYPES, getOperationType } = require('./helpers')
+
+const getChild = (input, operation, defaultValue, i) => {
+  if (input == null) {
+    return defaultValue
+  }
+  if (TYPES.STRING.is(operation) && !TYPES.OBJECT.is(input)) {
+    throw new Error(
+      `Invalid Set operation at index: ${i}: cannot get key ${operation} from ${getConstructorName(input)}`
+    )
+  } else if (TYPES.NUMBER.is(operation) && !TYPES.ARRAY.is(input)) {
+    throw new Error(
+      `Invalid Set operation at index: ${i}: cannot get index ${operation} from ${getConstructorName(input)}`
+    )
+  } else {
+    return input[operation]
+  }
+}
 
 //Curried version
 const _set = (...operationInputs) => (input) => {
@@ -14,9 +31,9 @@ const _set = (...operationInputs) => (input) => {
   rawOperations
     //operation validation
     .map((operation, i) => {
-      const operationType = OPERATION_TYPES.getType(operation)
+      const operationType = getOperationType(operation)
 
-      if (operationType !== OPERATION_TYPES.STRING && operationType !== OPERATION_TYPES.INDEX) {
+      if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
         throw new Error(
           `Invalid Set operation at index: ${i}: expecting a String or Number but received ${getConstructorName(
             operation
@@ -24,22 +41,21 @@ const _set = (...operationInputs) => (input) => {
         )
       }
 
+      const nextOperationType = getOperationType(rawOperations[i + 1])
+
       return {
         operation,
-        operationType,
-        defaultValue: OPERATION_TYPES.getType(rawOperations[i + 1]) === OPERATION_TYPES.STRING ? {} : [],
+        defaultValue: TYPES.STRING.is(nextOperationType) ? {} : [],
       }
     })
     //operation execution
     .forEach(({ operation, defaultValue }, i, operations) => {
       objectRef = objectRef[operation] =
         i === operations.length - 1
-          ? getConstructorName(value) === Function.name
+          ? TYPES.FUNCTION.is(value)
             ? value(objectRef[operation])
             : value
-          : objectRef[operation] != null
-          ? objectRef[operation]
-          : defaultValue
+          : getChild(objectRef, operation, defaultValue, i)
     })
 
   return input
