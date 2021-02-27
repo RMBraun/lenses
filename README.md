@@ -182,7 +182,7 @@ Wraps the function `unsafeFunction` so that it returns the `input` if the input 
 
 ## apply(prototypeName)(input)
 
-> part of `funcs.js`
+> part of `protos.js`
 
 Attempts to use the prototype function of the given `input` specified by `prototypeName`
 

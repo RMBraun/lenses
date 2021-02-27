@@ -9,7 +9,7 @@ const apply = (name) => (...options) => (input) => {
     return input
   }
 
-  if (TYPES.FUNCTION.is(input[name])) {
+  if (!TYPES.FUNCTION.is(input[name])) {
     throw new Error(`The function ${name} does not exist for type ${getConstructorName(input)}`)
   }
 
