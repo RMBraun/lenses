@@ -82,11 +82,11 @@ const defaults = (defaultValue) => (input) => {
   return input == null ? defaultValue : input
 }
 
-module.exports = {
-  _get,
-  defaults,
-  get: (input, ...operationInputs) => _get(...operationInputs)(input),
-}
+const get = (input, ...operationInputs) => _get(...operationInputs)(input)
+
+module.exports._get = _get
+module.exports.defaults = defaults
+module.exports.get = get
 
 //for browser static import
 loadGlobal(module.exports)

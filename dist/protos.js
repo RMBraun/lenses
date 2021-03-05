@@ -68,7 +68,7 @@ module.exports = {
 
 const { loadGlobal, TYPES, getConstructorName } = __webpack_require__(914)
 
-const apply = (name) => (...options) => (input) => {
+const _call = (name) => (...options) => (input) => {
   if (name == null || name.trim() == null) {
     throw new Error('no prototype function name specified')
   }
@@ -86,29 +86,34 @@ const apply = (name) => (...options) => (input) => {
 
 //Create common curried version of Array and Object prototypes
 //To be used in conjunction with 'get'
-module.exports.apply = apply
-module.exports.concat = apply('concat')
-module.exports.entries = apply('entries')
-module.exports.every = apply('every')
-module.exports.fill = apply('fill')
-module.exports.filter = apply('filter')
-module.exports.find = apply('find')
-module.exports.findIndex = apply('findIndex')
-module.exports.forEach = apply('forEach')
-module.exports.includes = apply('includes')
-module.exports.indexOf = apply('indexOf')
-module.exports.join = apply('join')
-module.exports.keys = apply('keys')
-module.exports.lastIndexOf = apply('lastIndexOf')
-module.exports.map = apply('map')
-module.exports.reduce = apply('reduce')
-module.exports.reverse = apply('reverse')
-module.exports.slice = apply('slice')
-module.exports.some = apply('some')
-module.exports.sort = apply('sort')
-module.exports.splice = apply('splice')
-module.exports.values = apply('values')
-module.exports.assign = apply('assign')
+module.exports.call = (name, ...options) => (input) => _call(name)(...options)(input)
+module.exports._call = _call
+module.exports.concat = _call('concat')
+module.exports.entries = _call('entries')
+module.exports.every = _call('every')
+module.exports.fill = _call('fill')
+module.exports.filter = _call('filter')
+module.exports.find = _call('find')
+module.exports.findIndex = _call('findIndex')
+module.exports.forEach = _call('forEach')
+module.exports.includes = _call('includes')
+module.exports.indexOf = _call('indexOf')
+module.exports.join = _call('join')
+module.exports.keys = _call('keys')
+module.exports.lastIndexOf = _call('lastIndexOf')
+module.exports.map = _call('map')
+module.exports.reduce = _call('reduce')
+module.exports.reverse = _call('reverse')
+module.exports.slice = _call('slice')
+module.exports.some = _call('some')
+module.exports.sort = _call('sort')
+module.exports.splice = _call('splice')
+module.exports.values = _call('values')
+module.exports.assign = _call('assign')
+module.exports.trim = _call('trim')
+module.exports.toLowerCase = _call('toLowerCase')
+module.exports.toUpperCase = _call('toUpperCase')
+module.exports.is = (b) => (a) => a === b || Object.is(a, b)
 
 //for browser static import
 loadGlobal(module.exports)

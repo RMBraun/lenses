@@ -61,10 +61,10 @@ const _set = (...operationInputs) => (input) => {
   return input
 }
 
-module.exports = {
-  _set,
-  set: (input, ...operationInputs) => _set(...operationInputs)(input),
-}
+const set = (input, ...operationInputs) => _set(...operationInputs)(input)
+
+module.exports._set = _set
+module.exports.set = set
 
 //for browser static import
 loadGlobal(module.exports)

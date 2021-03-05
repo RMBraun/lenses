@@ -1,1 +1,211 @@
-var __webpack_modules__={399:function(e,t,r){var n=r(743),o=n.loadGlobal,c=n.getConstructorName,i=n.TYPES,u=n.getOperationType,_=function(e,t,r){if(!i.FUNCTION.is(e))throw new Error("At index ".concat(r,": cannot apply function since it is not a Function"));return e(t)},a=function(e,t,r){var n=e.operation,o=e.type;return null==t?i.FUNCTION.is(o)?_(n,t,r):t:i.STRING.is(o)?function(e,t,r){if(null==t)return t;if(!i.OBJECT.is(t))throw new Error("At index ".concat(r,": cannot get property for a non Object type"));return t[e]}(n,t,r):i.NUMBER.is(o)?function(e,t,r){if(null==t)return t;if(!i.ARRAY.is(t))throw new Error("At index ".concat(r,": cannot get index for a non Array type"));return t[e]}(n,t,r):i.FUNCTION.is(o)?_(n,t,r):t},p=function(){for(var e=arguments.length,t=new Array(e),r=0;r<e;r++)t[r]=arguments[r];return function(e){return 0===t.length?e:[].concat(t).map((function(e,t){var r=u(e);if(i.INVALID.is(r))throw new Error("Invalid Get operation at index ".concat(t,": expecting String, Number, or Function but received ").concat(c(e)));return{operation:e,type:r}})).reduce((function(e,t,r){return a(t,e,r)}),e)}};e.exports={_get:p,defaults:function(e){return function(t){return null==t?e:t}},get:function(e){for(var t=arguments.length,r=new Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return p.apply(void 0,r)(e)}},o(e.exports)},743:function(e){function t(e,t){var r=Object.keys(e);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(e);t&&(n=n.filter((function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable}))),r.push.apply(r,n)}return r}function r(e){for(var r=1;r<arguments.length;r++){var o=null!=arguments[r]?arguments[r]:{};r%2?t(Object(o),!0).forEach((function(t){n(e,t,o[t])})):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(o)):t(Object(o)).forEach((function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(o,t))}))}return e}function n(e,t,r){return t in e?Object.defineProperty(e,t,{value:r,enumerable:!0,configurable:!0,writable:!0}):e[t]=r,e}function o(e){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}var c=function(e){return null==e?"".concat(e):e.constructor?e.constructor.name:"Unknown"},i=function(e,t,r,n){return e===t||o(e)===r||e instanceof n||c(e)===n.name},u={STRING:{is:function(e){return i(e,u.STRING,"string",String)}},FUNCTION:{is:function(e){return i(e,u.FUNCTION,"function",Function)}},NUMBER:{is:function(e){return i(e,u.NUMBER,"number",Number)}},OBJECT:{is:function(e){return i(e,u.OBJECT,"object",Object)}},ARRAY:{is:function(e){return e===u.ARRAY||Array.isArray(e)}},INVALID:{is:function(e){return e===u.INVALID}}};e.exports={getConstructorName:c,getOperationType:function(e){return u.STRING.is(e)&&e.trim().length>0?u.STRING:u.NUMBER.is(e)&&e>=0?u.NUMBER:u.FUNCTION.is(e)?u.FUNCTION:u.INVALID},TYPES:u,loadGlobal:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};"undefined"!=typeof window&&(window.L=r(r({},window.L),e))}}}},__webpack_module_cache__={};function __webpack_require__(e){if(__webpack_module_cache__[e])return __webpack_module_cache__[e].exports;var t=__webpack_module_cache__[e]={exports:{}};return __webpack_modules__[e](t,t.exports,__webpack_require__),t.exports}var __webpack_exports__=__webpack_require__(399),__webpack_export_target__=exports;for(var i in __webpack_exports__)__webpack_export_target__[i]=__webpack_exports__[i];__webpack_exports__.__esModule&&Object.defineProperty(__webpack_export_target__,"__esModule",{value:!0});
+/******/ var __webpack_modules__ = ({
+
+/***/ 399:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var _require = __webpack_require__(743),
+    loadGlobal = _require.loadGlobal,
+    getConstructorName = _require.getConstructorName,
+    TYPES = _require.TYPES,
+    getOperationType = _require.getOperationType;
+
+var getProperty = function getProperty(property, source, i) {
+  if (source == null) {
+    return source;
+  }
+
+  if (!TYPES.OBJECT.is(source)) {
+    throw new Error("At index ".concat(i, ": cannot get property for a non Object type"));
+  }
+
+  return source[property];
+};
+
+var getIndex = function getIndex(index, source, i) {
+  if (source == null) {
+    return source;
+  }
+
+  if (!TYPES.ARRAY.is(source)) {
+    throw new Error("At index ".concat(i, ": cannot get index for a non Array type"));
+  }
+
+  return source[index];
+};
+
+var applyFunction = function applyFunction(func, source, i) {
+  if (!TYPES.FUNCTION.is(func)) {
+    throw new Error("At index ".concat(i, ": cannot apply function since it is not a Function"));
+  }
+
+  return func(source);
+};
+
+var performOperation = function performOperation(_ref, source, i) {
+  var operation = _ref.operation,
+      type = _ref.type;
+  return source == null ? !TYPES.FUNCTION.is(type) ? source : applyFunction(operation, source, i) : TYPES.STRING.is(type) ? getProperty(operation, source, i) : TYPES.NUMBER.is(type) ? getIndex(operation, source, i) : TYPES.FUNCTION.is(type) ? applyFunction(operation, source, i) : source;
+}; //Curried version
+
+
+var _get = function _get() {
+  for (var _len = arguments.length, operationInputs = new Array(_len), _key = 0; _key < _len; _key++) {
+    operationInputs[_key] = arguments[_key];
+  }
+
+  return function (input) {
+    //default return
+    if (operationInputs.length === 0) {
+      return input;
+    }
+
+    var operations = [].concat(operationInputs);
+    return operations //operation validation
+    .map(function (operation, i) {
+      var type = getOperationType(operation);
+
+      if (TYPES.INVALID.is(type)) {
+        throw new Error("Invalid Get operation at index ".concat(i, ": expecting String, Number, or Function but received ").concat(getConstructorName(operation)));
+      }
+
+      return {
+        operation: operation,
+        type: type
+      };
+    }) //operation execution
+    .reduce(function (acc, operationInfo, i) {
+      return performOperation(operationInfo, acc, i);
+    }, input);
+  };
+};
+
+var defaults = function defaults(defaultValue) {
+  return function (input) {
+    return input == null ? defaultValue : input;
+  };
+};
+
+var get = function get(input) {
+  for (var _len2 = arguments.length, operationInputs = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    operationInputs[_key2 - 1] = arguments[_key2];
+  }
+
+  return _get.apply(void 0, operationInputs)(input);
+};
+
+module.exports._get = _get;
+module.exports.defaults = defaults;
+module.exports.get = get; //for browser static import
+
+loadGlobal(module.exports);
+
+/***/ }),
+
+/***/ 743:
+/***/ (function(module) {
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var getConstructorName = function getConstructorName(input) {
+  return input == null ? "".concat(input) : input.constructor ? input.constructor.name : 'Unknown';
+};
+
+var getOperationType = function getOperationType(operation) {
+  return TYPES.STRING.is(operation) && operation.trim().length > 0 ? TYPES.STRING : TYPES.NUMBER.is(operation) && operation >= 0 ? TYPES.NUMBER : TYPES.FUNCTION.is(operation) ? TYPES.FUNCTION : TYPES.INVALID;
+};
+
+var isType = function isType(input, type, typeofName, constructor) {
+  return input === type || _typeof(input) === typeofName || input instanceof constructor || getConstructorName(input) === constructor.name;
+};
+
+var TYPES = {
+  STRING: {
+    is: function is(input) {
+      return isType(input, TYPES.STRING, 'string', String);
+    }
+  },
+  FUNCTION: {
+    is: function is(input) {
+      return isType(input, TYPES.FUNCTION, 'function', Function);
+    }
+  },
+  NUMBER: {
+    is: function is(input) {
+      return isType(input, TYPES.NUMBER, 'number', Number);
+    }
+  },
+  OBJECT: {
+    is: function is(input) {
+      return isType(input, TYPES.OBJECT, 'object', Object);
+    }
+  },
+  ARRAY: {
+    is: function is(input) {
+      return input === TYPES.ARRAY || Array.isArray(input);
+    }
+  },
+  INVALID: {
+    is: function is(input) {
+      return input === TYPES.INVALID;
+    }
+  }
+}; //for browser static import
+
+var loadGlobal = function loadGlobal() {
+  var globals = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  if (typeof window !== 'undefined') {
+    window.L = _objectSpread(_objectSpread({}, window.L), globals);
+  }
+};
+
+module.exports = {
+  getConstructorName: getConstructorName,
+  getOperationType: getOperationType,
+  TYPES: TYPES,
+  loadGlobal: loadGlobal
+};
+
+/***/ })
+
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ var __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __webpack_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	if(__webpack_module_cache__[moduleId]) {
+/******/ 		return __webpack_module_cache__[moduleId].exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	var module = __webpack_module_cache__[moduleId] = {
+/******/ 		// no module.id needed
+/******/ 		// no module.loaded needed
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/************************************************************************/
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module is referenced by other modules so it can't be inlined
+/******/ var __webpack_exports__ = __webpack_require__(399);
+/******/ var __webpack_export_target__ = exports;
+/******/ for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
+/******/ if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ 

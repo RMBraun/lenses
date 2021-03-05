@@ -6,7 +6,7 @@ const baseConfig = {
   name: 'lenses',
   entry: glob
     .sync(path.join(__dirname, '*.js'))
-    .filter((source) => !source.includes('webpack.config'))
+    .filter((source) => !source.includes('webpack.config') && !source.includes('sfcc'))
     .reduce((entries, source) => {
       entries[path.basename(source).replace('.js', '')] = source
 
@@ -34,6 +34,7 @@ const baseConfig = {
 
 const webMin = {
   ...baseConfig,
+  name: 'lenses-web-min',
   output: {
     path: path.resolve('dist'),
     filename: '[name].min.js',
@@ -42,17 +43,30 @@ const webMin = {
 
 const webDev = {
   ...baseConfig,
+  name: 'lenses-web-dev',
   optimization: {
     minimize: false,
   },
   output: {
     path: path.resolve('dist'),
   },
-  module: {}
+  module: {},
 }
 
 const sfcc = {
   ...baseConfig,
+  name: 'lenses-sfcc',
+  entry: glob
+    .sync(path.join(__dirname, '*.js'))
+    .filter((source) => !source.includes('webpack.config') && !source.includes('lenses.js')  && !source.includes('protos.js'))
+    .reduce((entries, source) => {
+      entries[path.basename(source).replace('.sfcc', '').replace('.js', '')] = source
+
+      return entries
+    }, {}),
+  optimization: {
+    minimize: false,
+  },
   output: {
     ...baseConfig.output,
     path: path.resolve('sfcc'),

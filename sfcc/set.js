@@ -1,1 +1,186 @@
-var __webpack_modules__={743:function(e){function t(e,t){var r=Object.keys(e);if(Object.getOwnPropertySymbols){var n=Object.getOwnPropertySymbols(e);t&&(n=n.filter((function(t){return Object.getOwnPropertyDescriptor(e,t).enumerable}))),r.push.apply(r,n)}return r}function r(e){for(var r=1;r<arguments.length;r++){var o=null!=arguments[r]?arguments[r]:{};r%2?t(Object(o),!0).forEach((function(t){n(e,t,o[t])})):Object.getOwnPropertyDescriptors?Object.defineProperties(e,Object.getOwnPropertyDescriptors(o)):t(Object(o)).forEach((function(t){Object.defineProperty(e,t,Object.getOwnPropertyDescriptor(o,t))}))}return e}function n(e,t,r){return t in e?Object.defineProperty(e,t,{value:r,enumerable:!0,configurable:!0,writable:!0}):e[t]=r,e}function o(e){return(o="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(e){return typeof e}:function(e){return e&&"function"==typeof Symbol&&e.constructor===Symbol&&e!==Symbol.prototype?"symbol":typeof e})(e)}var c=function(e){return null==e?"".concat(e):e.constructor?e.constructor.name:"Unknown"},i=function(e,t,r,n){return e===t||o(e)===r||e instanceof n||c(e)===n.name},a={STRING:{is:function(e){return i(e,a.STRING,"string",String)}},FUNCTION:{is:function(e){return i(e,a.FUNCTION,"function",Function)}},NUMBER:{is:function(e){return i(e,a.NUMBER,"number",Number)}},OBJECT:{is:function(e){return i(e,a.OBJECT,"object",Object)}},ARRAY:{is:function(e){return e===a.ARRAY||Array.isArray(e)}},INVALID:{is:function(e){return e===a.INVALID}}};e.exports={getConstructorName:c,getOperationType:function(e){return a.STRING.is(e)&&e.trim().length>0?a.STRING:a.NUMBER.is(e)&&e>=0?a.NUMBER:a.FUNCTION.is(e)?a.FUNCTION:a.INVALID},TYPES:a,loadGlobal:function(){var e=arguments.length>0&&void 0!==arguments[0]?arguments[0]:{};"undefined"!=typeof window&&(window.L=r(r({},window.L),e))}}},17:function(e,t,r){var n=r(743),o=n.loadGlobal,c=n.getConstructorName,i=n.TYPES,a=n.getOperationType,_=function(e,t,r,n){if(null==e)return r;if(i.STRING.is(t)&&!i.OBJECT.is(e))throw new Error("Invalid Set operation at index: ".concat(n,": cannot get key ").concat(t," from ").concat(c(e)));if(i.NUMBER.is(t)&&!i.ARRAY.is(e))throw new Error("Invalid Set operation at index: ".concat(n,": cannot get index ").concat(t," from ").concat(c(e)));return e[t]},u=function(){for(var e=arguments.length,t=new Array(e),r=0;r<e;r++)t[r]=arguments[r];return function(e){if(0===t.length)return e;var r=[].concat(t),n=r.pop(),o=e;return r.map((function(e,t){var n=a(e);if(!i.STRING.is(n)&&!i.NUMBER.is(n))throw new Error("Invalid Set operation at index: ".concat(t,": expecting a String or Number but received ").concat(c(e)));var o=a(r[t+1]);return{operation:e,defaultValue:i.STRING.is(o)?{}:[]}})).forEach((function(e,t,r){var c=e.operation,a=e.defaultValue;o=o[c]=t===r.length-1?i.FUNCTION.is(n)?n(o[c]):n:_(o,c,a,t)})),e}};e.exports={_set:u,set:function(e){for(var t=arguments.length,r=new Array(t>1?t-1:0),n=1;n<t;n++)r[n-1]=arguments[n];return u.apply(void 0,r)(e)}},o(e.exports)}},__webpack_module_cache__={};function __webpack_require__(e){if(__webpack_module_cache__[e])return __webpack_module_cache__[e].exports;var t=__webpack_module_cache__[e]={exports:{}};return __webpack_modules__[e](t,t.exports,__webpack_require__),t.exports}var __webpack_exports__=__webpack_require__(17),__webpack_export_target__=exports;for(var i in __webpack_exports__)__webpack_export_target__[i]=__webpack_exports__[i];__webpack_exports__.__esModule&&Object.defineProperty(__webpack_export_target__,"__esModule",{value:!0});
+/******/ var __webpack_modules__ = ({
+
+/***/ 743:
+/***/ (function(module) {
+
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _typeof(obj) { "@babel/helpers - typeof"; if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
+
+var getConstructorName = function getConstructorName(input) {
+  return input == null ? "".concat(input) : input.constructor ? input.constructor.name : 'Unknown';
+};
+
+var getOperationType = function getOperationType(operation) {
+  return TYPES.STRING.is(operation) && operation.trim().length > 0 ? TYPES.STRING : TYPES.NUMBER.is(operation) && operation >= 0 ? TYPES.NUMBER : TYPES.FUNCTION.is(operation) ? TYPES.FUNCTION : TYPES.INVALID;
+};
+
+var isType = function isType(input, type, typeofName, constructor) {
+  return input === type || _typeof(input) === typeofName || input instanceof constructor || getConstructorName(input) === constructor.name;
+};
+
+var TYPES = {
+  STRING: {
+    is: function is(input) {
+      return isType(input, TYPES.STRING, 'string', String);
+    }
+  },
+  FUNCTION: {
+    is: function is(input) {
+      return isType(input, TYPES.FUNCTION, 'function', Function);
+    }
+  },
+  NUMBER: {
+    is: function is(input) {
+      return isType(input, TYPES.NUMBER, 'number', Number);
+    }
+  },
+  OBJECT: {
+    is: function is(input) {
+      return isType(input, TYPES.OBJECT, 'object', Object);
+    }
+  },
+  ARRAY: {
+    is: function is(input) {
+      return input === TYPES.ARRAY || Array.isArray(input);
+    }
+  },
+  INVALID: {
+    is: function is(input) {
+      return input === TYPES.INVALID;
+    }
+  }
+}; //for browser static import
+
+var loadGlobal = function loadGlobal() {
+  var globals = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+  if (typeof window !== 'undefined') {
+    window.L = _objectSpread(_objectSpread({}, window.L), globals);
+  }
+};
+
+module.exports = {
+  getConstructorName: getConstructorName,
+  getOperationType: getOperationType,
+  TYPES: TYPES,
+  loadGlobal: loadGlobal
+};
+
+/***/ }),
+
+/***/ 17:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
+
+var _require = __webpack_require__(743),
+    loadGlobal = _require.loadGlobal,
+    getConstructorName = _require.getConstructorName,
+    TYPES = _require.TYPES,
+    getOperationType = _require.getOperationType;
+
+var getChild = function getChild(input, operation, defaultValue, i) {
+  if (input == null) {
+    return defaultValue;
+  }
+
+  if (TYPES.STRING.is(operation) && !TYPES.OBJECT.is(input)) {
+    throw new Error("Invalid Set operation at index: ".concat(i, ": cannot get key ").concat(operation, " from ").concat(getConstructorName(input)));
+  } else if (TYPES.NUMBER.is(operation) && !TYPES.ARRAY.is(input)) {
+    throw new Error("Invalid Set operation at index: ".concat(i, ": cannot get index ").concat(operation, " from ").concat(getConstructorName(input)));
+  } else {
+    return input[operation];
+  }
+}; //Curried version
+
+
+var _set = function _set() {
+  for (var _len = arguments.length, operationInputs = new Array(_len), _key = 0; _key < _len; _key++) {
+    operationInputs[_key] = arguments[_key];
+  }
+
+  return function (input) {
+    //default return
+    if (operationInputs.length === 0) {
+      return input;
+    }
+
+    var rawOperations = [].concat(operationInputs);
+    var value = rawOperations.pop();
+    var objectRef = input;
+    rawOperations //operation validation
+    .map(function (operation, i) {
+      var operationType = getOperationType(operation);
+
+      if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
+        throw new Error("Invalid Set operation at index: ".concat(i, ": expecting a String or Number but received ").concat(getConstructorName(operation)));
+      }
+
+      var nextOperationType = getOperationType(rawOperations[i + 1]);
+      return {
+        operation: operation,
+        defaultValue: TYPES.STRING.is(nextOperationType) ? {} : []
+      };
+    }) //operation execution
+    .forEach(function (_ref, i, operations) {
+      var operation = _ref.operation,
+          defaultValue = _ref.defaultValue;
+      objectRef = objectRef[operation] = i === operations.length - 1 ? TYPES.FUNCTION.is(value) ? value(objectRef[operation]) : value : getChild(objectRef, operation, defaultValue, i);
+    });
+    return input;
+  };
+};
+
+var set = function set(input) {
+  for (var _len2 = arguments.length, operationInputs = new Array(_len2 > 1 ? _len2 - 1 : 0), _key2 = 1; _key2 < _len2; _key2++) {
+    operationInputs[_key2 - 1] = arguments[_key2];
+  }
+
+  return _set.apply(void 0, operationInputs)(input);
+};
+
+module.exports._set = _set;
+module.exports.set = set; //for browser static import
+
+loadGlobal(module.exports);
+
+/***/ })
+
+/******/ });
+/************************************************************************/
+/******/ // The module cache
+/******/ var __webpack_module_cache__ = {};
+/******/ 
+/******/ // The require function
+/******/ function __webpack_require__(moduleId) {
+/******/ 	// Check if module is in cache
+/******/ 	if(__webpack_module_cache__[moduleId]) {
+/******/ 		return __webpack_module_cache__[moduleId].exports;
+/******/ 	}
+/******/ 	// Create a new module (and put it into the cache)
+/******/ 	var module = __webpack_module_cache__[moduleId] = {
+/******/ 		// no module.id needed
+/******/ 		// no module.loaded needed
+/******/ 		exports: {}
+/******/ 	};
+/******/ 
+/******/ 	// Execute the module function
+/******/ 	__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 
+/******/ 	// Return the exports of the module
+/******/ 	return module.exports;
+/******/ }
+/******/ 
+/************************************************************************/
+/******/ 
+/******/ // startup
+/******/ // Load entry module and return exports
+/******/ // This entry module is referenced by other modules so it can't be inlined
+/******/ var __webpack_exports__ = __webpack_require__(17);
+/******/ var __webpack_export_target__ = exports;
+/******/ for(var i in __webpack_exports__) __webpack_export_target__[i] = __webpack_exports__[i];
+/******/ if(__webpack_exports__.__esModule) Object.defineProperty(__webpack_export_target__, "__esModule", { value: true });
+/******/ 
