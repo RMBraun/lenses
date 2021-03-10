@@ -156,7 +156,7 @@ Note: This will automatically fetch the latest version. This will load globally 
 
 ## SalesForce Controllers
 
-Download the desired script from https://unpkg.com/@rybr/sfcc/lenses.js. <br/> I recommend placing this script in `*/cartridge/scripts/util/lenses` <br/> Use `require` from within the controllers like normal. <br/> These scripts have been bundled as `commonJs` modules and have been translated to base ES5 so they should work in the controllers.
+Download the desired script from https://unpkg.com/@rybr/lenses/sfcc/lenses.js. <br/> I recommend placing this script in `*/cartridge/scripts/util/lenses` <br/> Use `require` from within the controllers like normal. <br/> These scripts have been bundled as `commonJs` modules and have been translated to base ES5 so they should work in the controllers.
 
 ```javascript
 const L = require('*/cartridge/scripts/util/lenses')

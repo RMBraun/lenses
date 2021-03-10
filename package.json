@@ -1,6 +1,6 @@
 {
   "name": "@rybr/lenses",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "a simple and light package meant to ease data traversal, manipulation, mutation, and transformation",
   "main": "lenses.js",
   "scripts": {
@@ -14,9 +14,10 @@
   "keywords": [
     "partial-lenses",
     "lenses",
+    "salesforce",
+    "sfcc",
     "data",
     "traversal",
-    "mutation",
     "transformation"
   ],
   "author": "Ryan Braun",
