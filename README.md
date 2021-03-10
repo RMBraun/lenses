@@ -154,7 +154,7 @@ import { map, filter, slice, ...rest } from '@rybr/lenses/protos'
 
 Note: This will automatically fetch the latest version. This will load globally into `window.L`
 
-## SalesForce Controlers
+## SalesForce Controllers
 
 Download the desired script from https://unpkg.com/@rybr/sfcc/lenses.js. <br/> I recommend placing this script in `*/cartridge/scripts/util/lenses` <br/> Use `require` from within the controllers like normal. <br/> These scripts have been bundled as `commonJs` modules and have been translated to base ES5 so they should work in the controllers.
 
@@ -162,7 +162,27 @@ Download the desired script from https://unpkg.com/@rybr/sfcc/lenses.js. <br/> I
 const L = require('*/cartridge/scripts/util/lenses')
 ```
 
-Note: only modify Objects and Arrays or any Class that extends one of these
+Generic polyfills have been included to support several commonly used Array prototype functions found in ES6 and later versions of ES5. <br/>
+
+Support has been added for the Java derived Collection class and those that implement this interface. These functions should work transparently with the normal JS Array. E.g.
+
+```javascript
+const L = require('*/cartridge/scripts/util/lenses')
+
+L.get(
+  someCollection, //SFCC Collection
+  L.find(function (item) {
+    return item && item.someProp
+  })
+)
+
+L.get(
+  [1, 2, 3, 4, 5], //JS Array
+  L.find(function (num) {
+    return num > 3
+  })
+)
+```
 
 ---
 
@@ -180,11 +200,11 @@ Wraps the function `unsafeFunction` so that it returns the `input` if the input 
 
 <br/>
 
-## apply(prototypeName)(input)
+## call(prototypeName, ...options)(input)
 
 > part of `protos.js`
 
-Attempts to use the prototype function of the given `input` specified by `prototypeName`
+Attempts to use the call the function of the given `input` specified by `prototypeName`
 
 <br />
 
@@ -208,7 +228,7 @@ If `input` is `null` or `undefined` then return `defaultValue` else return `inpu
 
 > part of `protos.js`
 
-Most prototype functions are available
+Most prototype functions are available and will be curried by default so that they can be used easily with `get`
 
 ---
 
