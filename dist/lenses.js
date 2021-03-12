@@ -252,7 +252,7 @@ const _call = (name) => (...options) => (input) => {
   return input[name](...options)
 }
 
-//Create common curried version of Array and Object prototypes
+//Create common curried version of Array, Object, and String prototypes
 //To be used in conjunction with 'get'
 module.exports.call = (name, ...options) => (input) => _call(name)(...options)(input)
 module.exports._call = _call
@@ -282,6 +282,26 @@ module.exports.trim = _call('trim')
 module.exports.toLowerCase = _call('toLowerCase')
 module.exports.toUpperCase = _call('toUpperCase')
 module.exports.is = (b) => (a) => a === b || Object.is(a, b)
+module.exports.replace = _call('replace')
+module.exports.replaceAll = _call('replaceAll')
+module.exports.padEnd = _call('padEnd')
+module.exports.padStart = _call('padStart')
+module.exports.repeat = _call('repeat')
+module.exports.charAt = _call('charAt')
+module.exports.charCodeAt = _call('charCodeAt')
+module.exports.endsWith = _call('endsWith')
+module.exports.startsWith = _call('startsWith')
+module.exports.startsWith = _call('startsWith')
+module.exports.match = _call('match')
+module.exports.matchAll = _call('matchAll')
+module.exports.normalize = _call('normalize')
+module.exports.split = _call('split')
+module.exports.substring = _call('startsWith')
+module.exports.toLowerCase = _call('toLowerCase')
+module.exports.toUpperCase = _call('toUpperCase')
+module.exports.trim = _call('trim')
+module.exports.trimStart = _call('trimStart')
+module.exports.trimEnd = _call('trimEnd')
 
 //for browser static import
 loadGlobal(module.exports)
