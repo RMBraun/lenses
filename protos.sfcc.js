@@ -108,11 +108,11 @@ const callbackWrapper = (name, type, sfType) => (...args) => (input) => {
   }
 }
 
-const isEmpty = () => (input) => {
+const isEmpty = (input) => {
   if (input == null) {
     return true
   } else if (TYPES.STRING.is(input)) {
-    return !!input
+    return !input || input == '' || input.length === 0
   } else if (TYPES.ARRAY.is(input)) {
     return input.length === 0
   } else if (input instanceof dw.util.Collection) {
@@ -123,8 +123,6 @@ const isEmpty = () => (input) => {
     return false
   }
 }
-
-const isNotEmpty = () => (input) => !isEmpty(input)
 
 //Create common curried version of Array and Object prototypes
 //To be used in conjunction with 'get'
@@ -160,8 +158,8 @@ module.exports.clear = protos._call('clear')
 module.exports.remove = protos._call('remove')
 module.exports.removeAll = protos._call('removeAll')
 
-module.exports.isEmpty = isEmpty
-module.exports.isNotEmpty = isNotEmpty
+module.exports.isEmpty = () => (input) => isEmpty(input)
+module.exports.isNotEmpty = () => (input) => !isEmpty(input)
 
 //for browser static import
 loadGlobal(module.exports)

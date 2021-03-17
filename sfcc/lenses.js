@@ -667,28 +667,20 @@ var callbackWrapper = function callbackWrapper(name, type, sfType) {
   };
 };
 
-var isEmpty = function isEmpty() {
-  return function (input) {
-    if (input == null) {
-      return true;
-    } else if (TYPES.STRING.is(input)) {
-      return !!input;
-    } else if (TYPES.ARRAY.is(input)) {
-      return input.length === 0;
-    } else if (input instanceof dw.util.Collection) {
-      return input.isEmpty();
-    } else if (TYPES.OBJECT.is(input)) {
-      return Object.keys(input).length === 0;
-    } else {
-      return false;
-    }
-  };
-};
-
-var isNotEmpty = function isNotEmpty() {
-  return function (input) {
-    return !isEmpty(input);
-  };
+var isEmpty = function isEmpty(input) {
+  if (input == null) {
+    return true;
+  } else if (TYPES.STRING.is(input)) {
+    return !input || input == '' || input.length === 0;
+  } else if (TYPES.ARRAY.is(input)) {
+    return input.length === 0;
+  } else if (input instanceof dw.util.Collection) {
+    return input.isEmpty();
+  } else if (TYPES.OBJECT.is(input)) {
+    return Object.keys(input).length === 0;
+  } else {
+    return false;
+  }
 }; //Create common curried version of Array and Object prototypes
 //To be used in conjunction with 'get'
 
@@ -725,8 +717,19 @@ module.exports.addAll = protos._call('addAll');
 module.exports.clear = protos._call('clear');
 module.exports.remove = protos._call('remove');
 module.exports.removeAll = protos._call('removeAll');
-module.exports.isEmpty = isEmpty;
-module.exports.isNotEmpty = isNotEmpty; //for browser static import
+
+module.exports.isEmpty = function () {
+  return function (input) {
+    return isEmpty(input);
+  };
+};
+
+module.exports.isNotEmpty = function () {
+  return function (input) {
+    return !isEmpty(input);
+  };
+}; //for browser static import
+
 
 loadGlobal(module.exports);
 
