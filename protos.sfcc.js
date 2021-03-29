@@ -161,5 +161,9 @@ module.exports.removeAll = protos._call('removeAll')
 module.exports.isEmpty = () => (input) => isEmpty(input)
 module.exports.isNotEmpty = () => (input) => !isEmpty(input)
 
+module.exports.getProp = (key) => (input) => {
+  return input != null ? (Object.hasOwnProperty.call(input, key) ? input[key] : undefined) : input
+},
+
 //for browser static import
 loadGlobal(module.exports)

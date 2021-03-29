@@ -69,9 +69,6 @@ module.exports = {
 const { loadGlobal, getConstructorName, TYPES, getOperationType } = __webpack_require__(914)
 
 const getChild = (input, operation, defaultValue, i) => {
-  if (input == null) {
-    return defaultValue
-  }
   if (TYPES.STRING.is(operation) && !TYPES.OBJECT.is(input)) {
     throw new Error(
       `Invalid Set operation at index: ${i}: cannot get key ${operation} from ${getConstructorName(input)}`
@@ -81,7 +78,7 @@ const getChild = (input, operation, defaultValue, i) => {
       `Invalid Set operation at index: ${i}: cannot get index ${operation} from ${getConstructorName(input)}`
     )
   } else {
-    return input[operation]
+    return input[operation] != null ? input[operation] : defaultValue
   }
 }
 

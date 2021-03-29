@@ -197,6 +197,7 @@ module.exports.join = _call('join');
 module.exports.keys = _call('keys');
 module.exports.lastIndexOf = _call('lastIndexOf');
 module.exports.map = _call('map');
+module.exports.push = _call('push');
 module.exports.reduce = _call('reduce');
 module.exports.reverse = _call('reverse');
 module.exports.slice = _call('slice');
@@ -224,12 +225,11 @@ module.exports.charAt = _call('charAt');
 module.exports.charCodeAt = _call('charCodeAt');
 module.exports.endsWith = _call('endsWith');
 module.exports.startsWith = _call('startsWith');
-module.exports.startsWith = _call('startsWith');
 module.exports.match = _call('match');
 module.exports.matchAll = _call('matchAll');
 module.exports.normalize = _call('normalize');
 module.exports.split = _call('split');
-module.exports.substring = _call('startsWith');
+module.exports.substring = _call('substring');
 module.exports.toLowerCase = _call('toLowerCase');
 module.exports.toUpperCase = _call('toUpperCase');
 module.exports.trim = _call('trim');
@@ -472,9 +472,13 @@ module.exports.isNotEmpty = function () {
   return function (input) {
     return !isEmpty(input);
   };
-}; //for browser static import
+};
 
-
+module.exports.getProp = function (key) {
+  return function (input) {
+    return input != null ? Object.hasOwnProperty.call(input, key) ? input[key] : undefined : input;
+  };
+}, //for browser static import
 loadGlobal(module.exports);
 
 /***/ })

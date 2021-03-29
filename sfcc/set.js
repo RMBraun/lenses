@@ -83,16 +83,12 @@ var _require = __webpack_require__(743),
     getOperationType = _require.getOperationType;
 
 var getChild = function getChild(input, operation, defaultValue, i) {
-  if (input == null) {
-    return defaultValue;
-  }
-
   if (TYPES.STRING.is(operation) && !TYPES.OBJECT.is(input)) {
     throw new Error("Invalid Set operation at index: ".concat(i, ": cannot get key ").concat(operation, " from ").concat(getConstructorName(input)));
   } else if (TYPES.NUMBER.is(operation) && !TYPES.ARRAY.is(input)) {
     throw new Error("Invalid Set operation at index: ".concat(i, ": cannot get index ").concat(operation, " from ").concat(getConstructorName(input)));
   } else {
-    return input[operation];
+    return input[operation] != null ? input[operation] : defaultValue;
   }
 }; //Curried version
 

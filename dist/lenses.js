@@ -270,6 +270,7 @@ module.exports.join = _call('join')
 module.exports.keys = _call('keys')
 module.exports.lastIndexOf = _call('lastIndexOf')
 module.exports.map = _call('map')
+module.exports.push = _call('push')
 module.exports.reduce = _call('reduce')
 module.exports.reverse = _call('reverse')
 module.exports.slice = _call('slice')
@@ -291,12 +292,11 @@ module.exports.charAt = _call('charAt')
 module.exports.charCodeAt = _call('charCodeAt')
 module.exports.endsWith = _call('endsWith')
 module.exports.startsWith = _call('startsWith')
-module.exports.startsWith = _call('startsWith')
 module.exports.match = _call('match')
 module.exports.matchAll = _call('matchAll')
 module.exports.normalize = _call('normalize')
 module.exports.split = _call('split')
-module.exports.substring = _call('startsWith')
+module.exports.substring = _call('substring')
 module.exports.toLowerCase = _call('toLowerCase')
 module.exports.toUpperCase = _call('toUpperCase')
 module.exports.trim = _call('trim')
@@ -315,9 +315,6 @@ loadGlobal(module.exports)
 const { loadGlobal, getConstructorName, TYPES, getOperationType } = __webpack_require__(914)
 
 const getChild = (input, operation, defaultValue, i) => {
-  if (input == null) {
-    return defaultValue
-  }
   if (TYPES.STRING.is(operation) && !TYPES.OBJECT.is(input)) {
     throw new Error(
       `Invalid Set operation at index: ${i}: cannot get key ${operation} from ${getConstructorName(input)}`
@@ -327,7 +324,7 @@ const getChild = (input, operation, defaultValue, i) => {
       `Invalid Set operation at index: ${i}: cannot get index ${operation} from ${getConstructorName(input)}`
     )
   } else {
-    return input[operation]
+    return input[operation] != null ? input[operation] : defaultValue
   }
 }
 
