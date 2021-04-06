@@ -640,6 +640,20 @@ var Collection = {
         index++;
       }
     };
+  },
+  reduce: function reduce(callback, initVal) {
+    return function (input) {
+      var iterator = input.iterator();
+      var index = 0;
+      var acc = initVal === undefined ? iterator.next() : initVal;
+
+      while (iterator.hasNext()) {
+        acc = callback(acc, iterator.next(), index, input);
+        index++;
+      }
+
+      return acc;
+    };
   }
 };
 
@@ -710,6 +724,7 @@ module.exports.concat = callbackWrapper('concat', TYPES.ARRAY, dw.util.Collectio
 module.exports.every = callbackWrapper('every', TYPES.ARRAY, dw.util.Collection);
 module.exports.some = callbackWrapper('some', TYPES.ARRAY, dw.util.Collection);
 module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY, dw.util.Collection);
+module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY, dw.util.Collection);
 module.exports.contains = protos._call('contains');
 module.exports.containsAll = protos._call('containsAll');
 module.exports.add = protos._call('add');
@@ -734,7 +749,9 @@ module.exports.getProp = function (key) {
   return function (input) {
     return input != null ? Object.hasOwnProperty.call(input, key) ? input[key] : undefined : input;
   };
-}, //for browser static import
+}; //for browser static import
+
+
 loadGlobal(module.exports);
 
 /***/ }),
@@ -754,7 +771,7 @@ var getChild = function getChild(input, operation, defaultValue, i) {
   } else if (TYPES.NUMBER.is(operation) && !TYPES.ARRAY.is(input)) {
     throw new Error("Invalid Set operation at index: ".concat(i, ": cannot get index ").concat(operation, " from ").concat(getConstructorName(input)));
   } else {
-    return input[operation] != null ? input[operation] : defaultValue;
+    return Object.prototype.hasOwnProperty.call(input, operation) ? input[operation] : defaultValue;
   }
 }; //Curried version
 
@@ -765,12 +782,20 @@ var _set = function _set() {
   }
 
   return function (input) {
-    //default return
-    if (operationInputs.length === 0) {
-      return input;
+    if (!TYPES.OBJECT.is(input) && !TYPES.ARRAY.is(input) && input != null) {
+      throw new Error("Invalid Set input: expecting an Object, Array, null, or undefined but received ".concat(getConstructorName(input)));
     }
 
     var rawOperations = [].concat(operationInputs);
+
+    if (input == null) {
+      input = TYPES.STRING.is(getOperationType(rawOperations[0])) ? {} : [];
+    }
+
+    if (rawOperations.length < 2) {
+      throw new Error("Invalid Set: expecting a minimum of 3 arguments but received only ".concat(rawOperations.length + 1));
+    }
+
     var value = rawOperations.pop();
     var objectRef = input;
     rawOperations //operation validation
@@ -790,6 +815,11 @@ var _set = function _set() {
     .forEach(function (_ref, i, operations) {
       var operation = _ref.operation,
           defaultValue = _ref.defaultValue;
+
+      if (!TYPES.OBJECT.is(objectRef) && !TYPES.ARRAY.is(objectRef) && !TYPES.FUNCTION.is(objectRef)) {
+        throw new Error("Invalid set operation at index: ".concat(i, ": cannot set nested value on non-Object, non-Array, and non-Function entities"));
+      }
+
       objectRef = objectRef[operation] = i === operations.length - 1 ? TYPES.FUNCTION.is(value) ? value(objectRef[operation]) : value : getChild(objectRef, operation, defaultValue, i);
     });
     return input;

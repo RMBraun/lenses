@@ -12,6 +12,7 @@ const Collection = {
   toArray: (input) => {
     const output = []
     const iterator = input.iterator()
+
     while (iterator.hasNext()) {
       output.push(iterator.next())
     }
@@ -20,6 +21,7 @@ const Collection = {
   find: (callback, thisRef) => (input) => {
     const iterator = input.iterator()
     let item
+
     while (iterator.hasNext()) {
       item = iterator.next()
       if (callback.call(thisRef, item, i, input)) {
@@ -31,6 +33,7 @@ const Collection = {
     const iterator = input.iterator()
     let index = 0
     let result = []
+
     while (iterator.hasNext()) {
       result.push(callback.call(thisRef, iterator.next(), index, input))
       index++
@@ -40,6 +43,7 @@ const Collection = {
   forEach: (callback, thisRef) => (input) => {
     const iterator = input.iterator()
     let index = 0
+
     while (iterator.hasNext()) {
       callback.call(thisRef, iterator.next(), index, input)
       index++
@@ -47,6 +51,7 @@ const Collection = {
   },
   concat: (...args) => (input) => {
     const output = Collection.toArray(input)
+
     for (var i = 0; i < args.length; i++) {
       if (TYPES.ARRAY.is(args[i])) {
         output.push(...args[i])
@@ -60,6 +65,7 @@ const Collection = {
   every: (callback, thisRef) => (input) => {
     const iterator = input.iterator()
     let index = 0
+
     while (iterator.hasNext()) {
       if (!callback.call(thisRef, iterator.next(), index, input)) {
         return false
@@ -71,6 +77,7 @@ const Collection = {
   some: (callback, thisRef) => (input) => {
     const iterator = input.iterator()
     let index = 0
+
     while (iterator.hasNext()) {
       if (callback.call(thisRef, iterator.next(), index, input)) {
         return true
@@ -82,6 +89,7 @@ const Collection = {
   getIndex: (index) => (input) => {
     const iterator = input.iterator()
     let i = 0
+
     while (iterator.hasNext()) {
       if (i === index) {
         return iterator.next()
@@ -89,6 +97,18 @@ const Collection = {
       iterator.next()
       index++
     }
+  },
+  reduce: (callback, initVal) => (input) => {
+    const iterator = input.iterator()
+    let index = 0
+    let acc = initVal === undefined ? iterator.next() : initVal
+
+    while (iterator.hasNext()) {
+      acc = callback(acc, iterator.next(), index, input)
+      index++
+    }
+
+    return acc
   },
 }
 
@@ -150,6 +170,7 @@ module.exports.concat = callbackWrapper('concat', TYPES.ARRAY, dw.util.Collectio
 module.exports.every = callbackWrapper('every', TYPES.ARRAY, dw.util.Collection)
 module.exports.some = callbackWrapper('some', TYPES.ARRAY, dw.util.Collection)
 module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY, dw.util.Collection)
+module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY, dw.util.Collection)
 module.exports.contains = protos._call('contains')
 module.exports.containsAll = protos._call('containsAll')
 module.exports.add = protos._call('add')
@@ -160,10 +181,8 @@ module.exports.removeAll = protos._call('removeAll')
 
 module.exports.isEmpty = () => (input) => isEmpty(input)
 module.exports.isNotEmpty = () => (input) => !isEmpty(input)
-
 module.exports.getProp = (key) => (input) => {
   return input != null ? (Object.hasOwnProperty.call(input, key) ? input[key] : undefined) : input
-},
-
+}
 //for browser static import
 loadGlobal(module.exports)

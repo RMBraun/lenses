@@ -78,18 +78,27 @@ const getChild = (input, operation, defaultValue, i) => {
       `Invalid Set operation at index: ${i}: cannot get index ${operation} from ${getConstructorName(input)}`
     )
   } else {
-    return input[operation] != null ? input[operation] : defaultValue
+    return Object.prototype.hasOwnProperty.call(input, operation) ? input[operation] : defaultValue
   }
 }
 
 //Curried version
 const _set = (...operationInputs) => (input) => {
-  //default return
-  if (operationInputs.length === 0) {
-    return input
+  if (!TYPES.OBJECT.is(input) && !TYPES.ARRAY.is(input) && input != null) {
+    throw new Error(
+      `Invalid Set input: expecting an Object, Array, null, or undefined but received ${getConstructorName(input)}`
+    )
   }
 
   const rawOperations = [...operationInputs]
+  if (input == null) {
+    input = TYPES.STRING.is(getOperationType(rawOperations[0])) ? {} : []
+  }
+
+  if (rawOperations.length < 2) {
+    throw new Error(`Invalid Set: expecting a minimum of 3 arguments but received only ${rawOperations.length + 1}`)
+  }
+
   const value = rawOperations.pop()
   let objectRef = input
 
@@ -115,6 +124,12 @@ const _set = (...operationInputs) => (input) => {
     })
     //operation execution
     .forEach(({ operation, defaultValue }, i, operations) => {
+      if (!TYPES.OBJECT.is(objectRef) && !TYPES.ARRAY.is(objectRef) && !TYPES.FUNCTION.is(objectRef)) {
+        throw new Error(
+          `Invalid set operation at index: ${i}: cannot set nested value on non-Object, non-Array, and non-Function entities`
+        )
+      }
+
       objectRef = objectRef[operation] =
         i === operations.length - 1
           ? TYPES.FUNCTION.is(value)

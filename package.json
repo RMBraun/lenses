@@ -1,10 +1,10 @@
 {
   "name": "@rybr/lenses",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "description": "a simple and light package meant to ease data traversal, manipulation, mutation, and transformation",
   "main": "lenses.js",
   "scripts": {
-    "test": "node ./tests/test.js",
+    "test": "node ./tests/runtests.js",
     "build": "webpack --config webpack.config.js"
   },
   "repository": {

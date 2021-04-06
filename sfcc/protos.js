@@ -384,6 +384,20 @@ var Collection = {
         index++;
       }
     };
+  },
+  reduce: function reduce(callback, initVal) {
+    return function (input) {
+      var iterator = input.iterator();
+      var index = 0;
+      var acc = initVal === undefined ? iterator.next() : initVal;
+
+      while (iterator.hasNext()) {
+        acc = callback(acc, iterator.next(), index, input);
+        index++;
+      }
+
+      return acc;
+    };
   }
 };
 
@@ -454,6 +468,7 @@ module.exports.concat = callbackWrapper('concat', TYPES.ARRAY, dw.util.Collectio
 module.exports.every = callbackWrapper('every', TYPES.ARRAY, dw.util.Collection);
 module.exports.some = callbackWrapper('some', TYPES.ARRAY, dw.util.Collection);
 module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY, dw.util.Collection);
+module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY, dw.util.Collection);
 module.exports.contains = protos._call('contains');
 module.exports.containsAll = protos._call('containsAll');
 module.exports.add = protos._call('add');
@@ -478,7 +493,9 @@ module.exports.getProp = function (key) {
   return function (input) {
     return input != null ? Object.hasOwnProperty.call(input, key) ? input[key] : undefined : input;
   };
-}, //for browser static import
+}; //for browser static import
+
+
 loadGlobal(module.exports);
 
 /***/ })

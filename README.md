@@ -2,7 +2,7 @@
 
 This package will help facilitate data retrieval, mutation, and transformation. It's aim is to:
 
-- stay small ~7kb minified
+- stay small
 - alleviate the need for `null` checking
 - easily allow pipe/compose/chaining of data flows
 - allow for a default value to be returned instead of `null` or `undefined` at <b>any point</b> within the chain

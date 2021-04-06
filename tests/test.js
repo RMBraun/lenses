@@ -1,8 +1,9 @@
-const { get, set } = require('../lenses')
-
-const TITLE = 'Lenses Test'
-
 const TEXT_BREAK = '-----------------'
+
+const RESULT_TEXT = {
+  PASSED: 'PASSED',
+  FAILED: 'FAILED',
+}
 
 const COLORS = {
   RED: 'RED',
@@ -28,33 +29,60 @@ const color = (colorId, text) => {
   }
 }
 
-console.log(color(COLORS.YELLOW, `${TEXT_BREAK}\n${TITLE}\n${TEXT_BREAK}`))
+module.exports = {
+  FALSEY_VALUES: [null, undefined, 0, '', false],
+  expect: (a) => ({
+    toEqual: (b) => {
+      if (a !== b) {
+        throw new Error(`Expected ${JSON.stringify(a)} to equal ${JSON.stringify(b)}`)
+      }
+    },
+    toSoftEqual: (b) => {
+      if (JSON.stringify(a, null, 1) != JSON.stringify(b, null, 1)) {
+        throw new Error(`Expected ${JSON.stringify(a)} to equal ${JSON.stringify(b)}`)
+      }
+    },
+    toFail: (message) => {
+      try {
+        a()
+      } catch {
+        return
+      }
+      throw new Error(message ? message : `Expected to fail but passed`)
+    },
+    toPass: (message) => {
+      try {
+        a()
+      } catch (e) {
+        throw new Error(message ? message : `Expected to pass but failed: ${e}`)
+      }
+    },
+  }),
+  runTests: (title, tests = []) => {
+    console.log(color(COLORS.YELLOW, `${TEXT_BREAK}\n${title} : ${tests.length} tests\n${TEXT_BREAK}`))
 
-const failedTests = []
-const runTest = (testFunc) => {
-  const result = testFunc()
-  console.log(`${testFunc.name}: ${color(result ? COLORS.GREEN : COLORS.RED, result)}`)
+    const failedTests = tests.reduce((acc, testFunc) => {
+      try {
+        testFunc()
 
-  if (!result) {
-    failedTests.push(testFunc)
-  }
-}
+        console.log(`${testFunc.name}: ${color(COLORS.GREEN, RESULT_TEXT.PASSED)}`)
+      } catch (e) {
+        console.log(`${testFunc.name}: ${color(COLORS.RED, RESULT_TEXT.FAILED)}`)
+        const errorMessage = `${e.stack.split('\n')[2].trim()}\n${e.message}`
+        acc.push({ func: testFunc, error: errorMessage })
+      }
 
-const tests = [
-  function testOne() {
-    const input = {}
-    return JSON.stringify(set(input, '0', 2, 'two', true))
+      return acc
+    }, [])
+
+    console.log('\n')
+    if (failedTests.length) {
+      console.log(`${TEXT_BREAK}\nTest Failures: ${failedTests.length}/${tests.length}\n`)
+      console.log(failedTests.map(({ func, error }) => `${func.name}\n${color(COLORS.RED, error)}\n`).join('\n'))
+      console.log(TEXT_BREAK)
+    } else {
+      console.log(color(COLORS.GREEN, 'All passed!'))
+    }
+    console.log('\n')
   },
-]
-
-tests.forEach(runTest)
-
-console.log('\n')
-if (failedTests.length) {
-  console.log(`${TEXT_BREAK}\nTest Failures:\n`)
-  console.log(failedTests.map((func) => func.name).join('\n'))
-  console.log(TEXT_BREAK)
-} else {
-  console.log(color(COLORS.GREEN, 'All passed!'))
 }
-console.log('\n')
