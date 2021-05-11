@@ -168,6 +168,20 @@ var _call = function _call(name) {
       return input[name].apply(input, options);
     };
   };
+};
+
+var isEmpty = function isEmpty(input) {
+  if (input == null) {
+    return true;
+  } else if (TYPES.STRING.is(input)) {
+    return !input || input == '' || input.length === 0;
+  } else if (TYPES.ARRAY.is(input)) {
+    return input.length === 0;
+  } else if (TYPES.OBJECT.is(input)) {
+    return Object.keys(input).length === 0;
+  } else {
+    return false;
+  }
 }; //Create common curried version of Array, Object, and String prototypes
 //To be used in conjunction with 'get'
 
@@ -184,7 +198,13 @@ module.exports.call = function (name) {
 
 module.exports._call = _call;
 module.exports.concat = _call('concat');
-module.exports.entries = _call('entries');
+
+module.exports.entries = function () {
+  return function (input) {
+    return input == null ? input : Object.entries(input);
+  };
+};
+
 module.exports.every = _call('every');
 module.exports.fill = _call('fill');
 module.exports.filter = _call('filter');
@@ -194,7 +214,13 @@ module.exports.forEach = _call('forEach');
 module.exports.includes = _call('includes');
 module.exports.indexOf = _call('indexOf');
 module.exports.join = _call('join');
-module.exports.keys = _call('keys');
+
+module.exports.keys = function () {
+  return function (input) {
+    return input == null ? input : Object.keys(input);
+  };
+};
+
 module.exports.lastIndexOf = _call('lastIndexOf');
 module.exports.map = _call('map');
 module.exports.push = _call('push');
@@ -204,7 +230,13 @@ module.exports.slice = _call('slice');
 module.exports.some = _call('some');
 module.exports.sort = _call('sort');
 module.exports.splice = _call('splice');
-module.exports.values = _call('values');
+
+module.exports.values = function () {
+  return function (input) {
+    return input == null ? input : Object.values(input);
+  };
+};
+
 module.exports.assign = _call('assign');
 module.exports.trim = _call('trim');
 module.exports.toLowerCase = _call('toLowerCase');
@@ -234,7 +266,20 @@ module.exports.toLowerCase = _call('toLowerCase');
 module.exports.toUpperCase = _call('toUpperCase');
 module.exports.trim = _call('trim');
 module.exports.trimStart = _call('trimStart');
-module.exports.trimEnd = _call('trimEnd'); //for browser static import
+module.exports.trimEnd = _call('trimEnd');
+
+module.exports.isEmpty = function () {
+  return function (input) {
+    return isEmpty(input);
+  };
+};
+
+module.exports.isNotEmpty = function () {
+  return function (input) {
+    return !isEmpty(input);
+  };
+}; //for browser static import
+
 
 loadGlobal(module.exports);
 

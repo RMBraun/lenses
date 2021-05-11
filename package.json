@@ -1,6 +1,6 @@
 {
   "name": "@rybr/lenses",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "description": "a simple and light package meant to ease data traversal, manipulation, mutation, and transformation",
   "main": "lenses.js",
   "scripts": {

@@ -84,12 +84,26 @@ const _call = (name) => (...options) => (input) => {
   return input[name](...options)
 }
 
+const isEmpty = (input) => {
+  if (input == null) {
+    return true
+  } else if (TYPES.STRING.is(input)) {
+    return !input || input == '' || input.length === 0
+  } else if (TYPES.ARRAY.is(input)) {
+    return input.length === 0
+  } else if (TYPES.OBJECT.is(input)) {
+    return Object.keys(input).length === 0
+  } else {
+    return false
+  }
+}
+
 //Create common curried version of Array, Object, and String prototypes
 //To be used in conjunction with 'get'
 module.exports.call = (name, ...options) => (input) => _call(name)(...options)(input)
 module.exports._call = _call
 module.exports.concat = _call('concat')
-module.exports.entries = _call('entries')
+module.exports.entries = () => (input) => (input == null ? input : Object.entries(input))
 module.exports.every = _call('every')
 module.exports.fill = _call('fill')
 module.exports.filter = _call('filter')
@@ -99,7 +113,7 @@ module.exports.forEach = _call('forEach')
 module.exports.includes = _call('includes')
 module.exports.indexOf = _call('indexOf')
 module.exports.join = _call('join')
-module.exports.keys = _call('keys')
+module.exports.keys = () => (input) => (input == null ? input : Object.keys(input))
 module.exports.lastIndexOf = _call('lastIndexOf')
 module.exports.map = _call('map')
 module.exports.push = _call('push')
@@ -109,7 +123,7 @@ module.exports.slice = _call('slice')
 module.exports.some = _call('some')
 module.exports.sort = _call('sort')
 module.exports.splice = _call('splice')
-module.exports.values = _call('values')
+module.exports.values = () => (input) => (input == null ? input : Object.values(input))
 module.exports.assign = _call('assign')
 module.exports.trim = _call('trim')
 module.exports.toLowerCase = _call('toLowerCase')
@@ -134,6 +148,9 @@ module.exports.toUpperCase = _call('toUpperCase')
 module.exports.trim = _call('trim')
 module.exports.trimStart = _call('trimStart')
 module.exports.trimEnd = _call('trimEnd')
+
+module.exports.isEmpty = () => (input) => isEmpty(input)
+module.exports.isNotEmpty = () => (input) => !isEmpty(input)
 
 //for browser static import
 loadGlobal(module.exports)
