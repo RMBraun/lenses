@@ -519,8 +519,8 @@ var callbackWrapper = function callbackWrapper(name, type) {
         return input;
       }
 
-      if (Object.prototype.hasOwnProperty.call(input, name)) {
-        return protos.call(name).apply(void 0, args)(input);
+      if (TYPES.FUNCTION.is(input[name])) {
+        return protos.call.apply(protos, [name].concat(args))(input);
       } else if (type.is(input) && polyfills[name]) {
         return polyfills[name].apply(polyfills, args)(input);
       } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {

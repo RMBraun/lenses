@@ -135,8 +135,8 @@ const callbackWrapper = (name, type) => (...args) => (input) => {
     return input
   }
 
-  if (Object.prototype.hasOwnProperty.call(input, name)) {
-    return protos.call(name)(...args)(input)
+  if (TYPES.FUNCTION.is(input[name])) {
+    return protos.call(name, ...args)(input)
   } else if (type.is(input) && polyfills[name]) {
     return polyfills[name](...args)(input)
   } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
