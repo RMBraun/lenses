@@ -6,28 +6,14 @@
 
 const { loadGlobal, getConstructorName, TYPES, getOperationType } = __webpack_require__(914)
 
-const getProperty = (property, source, i) => {
+const getProperty = (property, source) => {
   if (source == null) {
     return source
   }
 
-  if (!TYPES.OBJECT.is(source)) {
-    throw new Error(`At index ${i}: cannot get property for a non Object type`)
-  }
-
-  return source[property]
-}
-
-const getIndex = (index, source, i) => {
-  if (source == null) {
-    return source
-  }
-
-  if (!TYPES.ARRAY.is(source)) {
-    throw new Error(`At index ${i}: cannot get index for a non Array type`)
-  }
-
-  return source[index]
+  return Object.prototype.hasOwnProperty.call(source, property)
+    ? source[property]
+    : undefined
 }
 
 const applyFunction = (func, source, i) => {
@@ -43,10 +29,8 @@ const performOperation = ({ operation, type }, source, i) =>
     ? !TYPES.FUNCTION.is(type)
       ? source
       : applyFunction(operation, source, i)
-    : TYPES.STRING.is(type)
-    ? getProperty(operation, source, i)
-    : TYPES.NUMBER.is(type)
-    ? getIndex(operation, source, i)
+    : TYPES.STRING.is(type) || TYPES.NUMBER.is(type)
+    ? getProperty(operation, source)
     : TYPES.FUNCTION.is(type)
     ? applyFunction(operation, source, i)
     : source

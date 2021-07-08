@@ -8,10 +8,14 @@ const { loadGlobal, TYPES, getConstructorName } = require('./helpers')
 const protos = require('./protos')
 const polyfills = require('./polyfills')
 
+const getIterator = input => input instanceof dw.util.Iterator
+  ? input
+  : input.iterator() 
+
 const Collection = {
   toArray: (input) => {
     const output = []
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
 
     while (iterator.hasNext()) {
       output.push(iterator.next())
@@ -19,7 +23,7 @@ const Collection = {
     return output
   },
   find: (callback, thisRef) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let item
 
     while (iterator.hasNext()) {
@@ -30,7 +34,7 @@ const Collection = {
     }
   },
   map: (callback, thisRef) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let index = 0
     let result = []
 
@@ -40,8 +44,22 @@ const Collection = {
     }
     return result
   },
+  filter: (callback, thisRef) => (input) => {
+    const iterator = getIterator(input)
+    let index = 0
+    let result = []
+
+    while (iterator.hasNext()) {
+      const nextValue = iterator.next()
+      if(callback.call(thisRef, nextValue, index, input)) {
+        result.push(nextValue)
+      }
+      index++
+    }
+    return result
+  },
   forEach: (callback, thisRef) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let index = 0
 
     while (iterator.hasNext()) {
@@ -63,7 +81,7 @@ const Collection = {
     }
   },
   every: (callback, thisRef) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let index = 0
 
     while (iterator.hasNext()) {
@@ -75,7 +93,7 @@ const Collection = {
     return true
   },
   some: (callback, thisRef) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let index = 0
 
     while (iterator.hasNext()) {
@@ -87,7 +105,7 @@ const Collection = {
     return false
   },
   getIndex: (index) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let i = 0
 
     while (iterator.hasNext()) {
@@ -99,7 +117,7 @@ const Collection = {
     }
   },
   reduce: (callback, initVal) => (input) => {
-    const iterator = input.iterator()
+    const iterator = getIterator(input)
     let index = 0
     let acc = initVal === undefined ? iterator.next() : initVal
 
@@ -112,16 +130,16 @@ const Collection = {
   },
 }
 
-const callbackWrapper = (name, type, sfType) => (...args) => (input) => {
+const callbackWrapper = (name, type) => (...args) => (input) => {
   if (input == null) {
     return input
   }
 
   if (Object.prototype.hasOwnProperty.call(input, name)) {
     return protos.call(name)(...args)(input)
-  } else if (type.is(input)) {
+  } else if (type.is(input) && polyfills[name]) {
     return polyfills[name](...args)(input)
-  } else if (input instanceof sfType) {
+  } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
     return Collection[name](...args)(input)
   } else {
     throw new Error(`The function ${name} does not exist for type ${getConstructorName(input)}`)
@@ -137,6 +155,8 @@ const isEmpty = (input) => {
     return input.length === 0
   } else if (input instanceof dw.util.Collection) {
     return input.isEmpty()
+  } else if (input instanceof dw.util.Iterator) {
+    return input.hasNext()
   } else if (TYPES.OBJECT.is(input)) {
     return Object.keys(input).length === 0
   } else {
@@ -163,14 +183,18 @@ module.exports.toArray = () => (input) => {
   }
 }
 
-module.exports.find = callbackWrapper('find', TYPES.ARRAY, dw.util.Collection)
-module.exports.map = callbackWrapper('map', TYPES.ARRAY, dw.util.Collection)
-module.exports.forEach = callbackWrapper('forEach', TYPES.ARRAY, dw.util.Collection)
-module.exports.concat = callbackWrapper('concat', TYPES.ARRAY, dw.util.Collection)
-module.exports.every = callbackWrapper('every', TYPES.ARRAY, dw.util.Collection)
-module.exports.some = callbackWrapper('some', TYPES.ARRAY, dw.util.Collection)
-module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY, dw.util.Collection)
-module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY, dw.util.Collection)
+//Collection, Iterable, and pollyfill support
+module.exports.filter = callbackWrapper('filter', TYPES.ARRAY)
+module.exports.find = callbackWrapper('find', TYPES.ARRAY)
+module.exports.map = callbackWrapper('map', TYPES.ARRAY)
+module.exports.forEach = callbackWrapper('forEach', TYPES.ARRAY)
+module.exports.concat = callbackWrapper('concat', TYPES.ARRAY)
+module.exports.every = callbackWrapper('every', TYPES.ARRAY)
+module.exports.some = callbackWrapper('some', TYPES.ARRAY)
+module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY)
+module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY)
+
+//Java class specific prototypes
 module.exports.contains = protos._call('contains')
 module.exports.containsAll = protos._call('containsAll')
 module.exports.add = protos._call('add')
@@ -179,6 +203,7 @@ module.exports.clear = protos._call('clear')
 module.exports.remove = protos._call('remove')
 module.exports.removeAll = protos._call('removeAll')
 
+//custom functions
 module.exports.isEmpty = () => (input) => isEmpty(input)
 module.exports.isNotEmpty = () => (input) => !isEmpty(input)
 module.exports.getProp = (key) => (input) => {

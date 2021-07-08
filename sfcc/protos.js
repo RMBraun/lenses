@@ -217,7 +217,17 @@ module.exports.join = _call('join');
 
 module.exports.keys = function () {
   return function (input) {
-    return input == null ? input : Object.keys(input);
+    if (input == null) {
+      return input;
+    }
+
+    if (TYPES.OBJECT.is(input)) {
+      return Object.keys(input);
+    } else if (TYPES.ARRAY.is(input)) {
+      return Array.keys(input);
+    } else {
+      throw new Error("Input must be of type Object or Array but found ".concat(getConstructorName(input)));
+    }
   };
 };
 
@@ -233,11 +243,36 @@ module.exports.splice = _call('splice');
 
 module.exports.values = function () {
   return function (input) {
-    return input == null ? input : Object.values(input);
+    if (input == null) {
+      return input;
+    }
+
+    if (TYPES.OBJECT.is(input)) {
+      return Object.values(input);
+    } else if (TYPES.ARRAY.is(input)) {
+      return Array.values(input);
+    } else {
+      throw new Error("Input must be of type Object or Array but found ".concat(getConstructorName(input)));
+    }
   };
 };
 
-module.exports.assign = _call('assign');
+module.exports.assign = function () {
+  for (var _len3 = arguments.length, options = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+    options[_key3] = arguments[_key3];
+  }
+
+  return function (input) {
+    return input == null ? input : Object.assign.apply(Object, [input].concat(options));
+  };
+};
+
+module.exports.hasOwnProperty = function (name) {
+  return function (input) {
+    return input == null ? input : Object.prototype.hasOwnProperty.call(input, name);
+  };
+};
+
 module.exports.trim = _call('trim');
 module.exports.toLowerCase = _call('toLowerCase');
 module.exports.toUpperCase = _call('toUpperCase');
@@ -267,6 +302,10 @@ module.exports.toUpperCase = _call('toUpperCase');
 module.exports.trim = _call('trim');
 module.exports.trimStart = _call('trimStart');
 module.exports.trimEnd = _call('trimEnd');
+
+module.exports.isArray = function (input) {
+  return input == null ? input : Array.isArray(input);
+};
 
 module.exports.isEmpty = function () {
   return function (input) {
@@ -314,10 +353,14 @@ var protos = __webpack_require__(798);
 
 var polyfills = __webpack_require__(950);
 
+var getIterator = function getIterator(input) {
+  return input instanceof dw.util.Iterator ? input : input.iterator();
+};
+
 var Collection = {
   toArray: function toArray(input) {
     var output = [];
-    var iterator = input.iterator();
+    var iterator = getIterator(input);
 
     while (iterator.hasNext()) {
       output.push(iterator.next());
@@ -327,7 +370,7 @@ var Collection = {
   },
   find: function find(callback, thisRef) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var item;
 
       while (iterator.hasNext()) {
@@ -341,7 +384,7 @@ var Collection = {
   },
   map: function map(callback, thisRef) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var index = 0;
       var result = [];
 
@@ -353,9 +396,28 @@ var Collection = {
       return result;
     };
   },
+  filter: function filter(callback, thisRef) {
+    return function (input) {
+      var iterator = getIterator(input);
+      var index = 0;
+      var result = [];
+
+      while (iterator.hasNext()) {
+        var nextValue = iterator.next();
+
+        if (callback.call(thisRef, nextValue, index, input)) {
+          result.push(nextValue);
+        }
+
+        index++;
+      }
+
+      return result;
+    };
+  },
   forEach: function forEach(callback, thisRef) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var index = 0;
 
       while (iterator.hasNext()) {
@@ -385,7 +447,7 @@ var Collection = {
   },
   every: function every(callback, thisRef) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var index = 0;
 
       while (iterator.hasNext()) {
@@ -401,7 +463,7 @@ var Collection = {
   },
   some: function some(callback, thisRef) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var index = 0;
 
       while (iterator.hasNext()) {
@@ -417,7 +479,7 @@ var Collection = {
   },
   getIndex: function getIndex(index) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var i = 0;
 
       while (iterator.hasNext()) {
@@ -432,7 +494,7 @@ var Collection = {
   },
   reduce: function reduce(callback, initVal) {
     return function (input) {
-      var iterator = input.iterator();
+      var iterator = getIterator(input);
       var index = 0;
       var acc = initVal === undefined ? iterator.next() : initVal;
 
@@ -446,7 +508,7 @@ var Collection = {
   }
 };
 
-var callbackWrapper = function callbackWrapper(name, type, sfType) {
+var callbackWrapper = function callbackWrapper(name, type) {
   return function () {
     for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
       args[_key2] = arguments[_key2];
@@ -459,9 +521,9 @@ var callbackWrapper = function callbackWrapper(name, type, sfType) {
 
       if (Object.prototype.hasOwnProperty.call(input, name)) {
         return protos.call(name).apply(void 0, args)(input);
-      } else if (type.is(input)) {
+      } else if (type.is(input) && polyfills[name]) {
         return polyfills[name].apply(polyfills, args)(input);
-      } else if (input instanceof sfType) {
+      } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
         return Collection[name].apply(Collection, args)(input);
       } else {
         throw new Error("The function ".concat(name, " does not exist for type ").concat(getConstructorName(input)));
@@ -479,6 +541,8 @@ var isEmpty = function isEmpty(input) {
     return input.length === 0;
   } else if (input instanceof dw.util.Collection) {
     return input.isEmpty();
+  } else if (input instanceof dw.util.Iterator) {
+    return input.hasNext();
   } else if (TYPES.OBJECT.is(input)) {
     return Object.keys(input).length === 0;
   } else {
@@ -504,23 +568,26 @@ module.exports.toArray = function () {
       throw new Error("Cannot convert input of type ".concat(getConstructorName(input), " into Array"));
     }
   };
-};
+}; //Collection, Iterable, and pollyfill support
 
-module.exports.find = callbackWrapper('find', TYPES.ARRAY, dw.util.Collection);
-module.exports.map = callbackWrapper('map', TYPES.ARRAY, dw.util.Collection);
-module.exports.forEach = callbackWrapper('forEach', TYPES.ARRAY, dw.util.Collection);
-module.exports.concat = callbackWrapper('concat', TYPES.ARRAY, dw.util.Collection);
-module.exports.every = callbackWrapper('every', TYPES.ARRAY, dw.util.Collection);
-module.exports.some = callbackWrapper('some', TYPES.ARRAY, dw.util.Collection);
-module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY, dw.util.Collection);
-module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY, dw.util.Collection);
+
+module.exports.filter = callbackWrapper('filter', TYPES.ARRAY);
+module.exports.find = callbackWrapper('find', TYPES.ARRAY);
+module.exports.map = callbackWrapper('map', TYPES.ARRAY);
+module.exports.forEach = callbackWrapper('forEach', TYPES.ARRAY);
+module.exports.concat = callbackWrapper('concat', TYPES.ARRAY);
+module.exports.every = callbackWrapper('every', TYPES.ARRAY);
+module.exports.some = callbackWrapper('some', TYPES.ARRAY);
+module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY);
+module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY); //Java class specific prototypes
+
 module.exports.contains = protos._call('contains');
 module.exports.containsAll = protos._call('containsAll');
 module.exports.add = protos._call('add');
 module.exports.addAll = protos._call('addAll');
 module.exports.clear = protos._call('clear');
 module.exports.remove = protos._call('remove');
-module.exports.removeAll = protos._call('removeAll');
+module.exports.removeAll = protos._call('removeAll'); //custom functions
 
 module.exports.isEmpty = function () {
   return function (input) {

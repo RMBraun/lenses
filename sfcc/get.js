@@ -9,28 +9,12 @@ var _require = __webpack_require__(743),
     TYPES = _require.TYPES,
     getOperationType = _require.getOperationType;
 
-var getProperty = function getProperty(property, source, i) {
+var getProperty = function getProperty(property, source) {
   if (source == null) {
     return source;
   }
 
-  if (!TYPES.OBJECT.is(source)) {
-    throw new Error("At index ".concat(i, ": cannot get property for a non Object type"));
-  }
-
-  return source[property];
-};
-
-var getIndex = function getIndex(index, source, i) {
-  if (source == null) {
-    return source;
-  }
-
-  if (!TYPES.ARRAY.is(source)) {
-    throw new Error("At index ".concat(i, ": cannot get index for a non Array type"));
-  }
-
-  return source[index];
+  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined;
 };
 
 var applyFunction = function applyFunction(func, source, i) {
@@ -44,7 +28,7 @@ var applyFunction = function applyFunction(func, source, i) {
 var performOperation = function performOperation(_ref, source, i) {
   var operation = _ref.operation,
       type = _ref.type;
-  return source == null ? !TYPES.FUNCTION.is(type) ? source : applyFunction(operation, source, i) : TYPES.STRING.is(type) ? getProperty(operation, source, i) : TYPES.NUMBER.is(type) ? getIndex(operation, source, i) : TYPES.FUNCTION.is(type) ? applyFunction(operation, source, i) : source;
+  return source == null ? !TYPES.FUNCTION.is(type) ? source : applyFunction(operation, source, i) : TYPES.STRING.is(type) || TYPES.NUMBER.is(type) ? getProperty(operation, source) : TYPES.FUNCTION.is(type) ? applyFunction(operation, source, i) : source;
 }; //Curried version
 
 

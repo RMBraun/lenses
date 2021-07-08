@@ -45,7 +45,19 @@ module.exports.forEach = _call('forEach')
 module.exports.includes = _call('includes')
 module.exports.indexOf = _call('indexOf')
 module.exports.join = _call('join')
-module.exports.keys = () => (input) => (input == null ? input : Object.keys(input))
+module.exports.keys = () => input => {
+  if (input == null) {
+    return input
+  }
+
+  if (TYPES.OBJECT.is(input)) {
+    return Object.keys(input)
+  } else if (TYPES.ARRAY.is(input)) {
+    return Array.keys(input)
+  } else {
+    throw new Error(`Input must be of type Object or Array but found ${getConstructorName(input)}`)
+  }
+}
 module.exports.lastIndexOf = _call('lastIndexOf')
 module.exports.map = _call('map')
 module.exports.push = _call('push')
@@ -55,8 +67,21 @@ module.exports.slice = _call('slice')
 module.exports.some = _call('some')
 module.exports.sort = _call('sort')
 module.exports.splice = _call('splice')
-module.exports.values = () => (input) => (input == null ? input : Object.values(input))
-module.exports.assign = _call('assign')
+module.exports.values = () => input => {
+  if (input == null) {
+    return input
+  }
+
+  if (TYPES.OBJECT.is(input)) {
+    return Object.values(input)
+  } else if (TYPES.ARRAY.is(input)) {
+    return Array.values(input)
+  } else {
+    throw new Error(`Input must be of type Object or Array but found ${getConstructorName(input)}`)
+  }
+}
+module.exports.assign = (...options) => input => input == null ? input : Object.assign(input, ...options)
+module.exports.hasOwnProperty = (name) => input => input == null ? input : Object.prototype.hasOwnProperty.call(input, name)
 module.exports.trim = _call('trim')
 module.exports.toLowerCase = _call('toLowerCase')
 module.exports.toUpperCase = _call('toUpperCase')
@@ -80,6 +105,7 @@ module.exports.toUpperCase = _call('toUpperCase')
 module.exports.trim = _call('trim')
 module.exports.trimStart = _call('trimStart')
 module.exports.trimEnd = _call('trimEnd')
+module.exports.isArray = input => input == null ? input : Array.isArray(input)
 
 module.exports.isEmpty = () => (input) => isEmpty(input)
 module.exports.isNotEmpty = () => (input) => !isEmpty(input)
