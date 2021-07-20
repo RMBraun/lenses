@@ -8,12 +8,10 @@ const { loadGlobal, TYPES, getConstructorName } = require('./helpers')
 const protos = require('./protos')
 const polyfills = require('./polyfills')
 
-const getIterator = input => input instanceof dw.util.Iterator
-  ? input
-  : input.iterator() 
+const getIterator = input => (input instanceof dw.util.Iterator ? input : input.iterator())
 
 const Collection = {
-  toArray: (input) => {
+  toArray: input => {
     const output = []
     const iterator = getIterator(input)
 
@@ -22,7 +20,7 @@ const Collection = {
     }
     return output
   },
-  find: (callback, thisRef) => (input) => {
+  find: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let item
 
@@ -33,7 +31,7 @@ const Collection = {
       }
     }
   },
-  map: (callback, thisRef) => (input) => {
+  map: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
     let result = []
@@ -44,21 +42,21 @@ const Collection = {
     }
     return result
   },
-  filter: (callback, thisRef) => (input) => {
+  filter: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
     let result = []
 
     while (iterator.hasNext()) {
       const nextValue = iterator.next()
-      if(callback.call(thisRef, nextValue, index, input)) {
+      if (callback.call(thisRef, nextValue, index, input)) {
         result.push(nextValue)
       }
       index++
     }
     return result
   },
-  forEach: (callback, thisRef) => (input) => {
+  forEach: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
 
@@ -67,20 +65,22 @@ const Collection = {
       index++
     }
   },
-  concat: (...args) => (input) => {
-    const output = Collection.toArray(input)
+  concat:
+    (...args) =>
+    input => {
+      const output = Collection.toArray(input)
 
-    for (var i = 0; i < args.length; i++) {
-      if (TYPES.ARRAY.is(args[i])) {
-        output.push(...args[i])
-      } else if (args[i] instanceof dw.util.Collection) {
-        output.push(...Collection.toArray(args[i]))
-      } else {
-        output.push(args[i])
+      for (var i = 0; i < args.length; i++) {
+        if (TYPES.ARRAY.is(args[i])) {
+          output.push(...args[i])
+        } else if (args[i] instanceof dw.util.Collection) {
+          output.push(...Collection.toArray(args[i]))
+        } else {
+          output.push(args[i])
+        }
       }
-    }
-  },
-  every: (callback, thisRef) => (input) => {
+    },
+  every: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
 
@@ -92,7 +92,7 @@ const Collection = {
     }
     return true
   },
-  some: (callback, thisRef) => (input) => {
+  some: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
 
@@ -104,7 +104,7 @@ const Collection = {
     }
     return false
   },
-  getIndex: (index) => (input) => {
+  getIndex: index => input => {
     const iterator = getIterator(input)
     let i = 0
 
@@ -116,7 +116,7 @@ const Collection = {
       index++
     }
   },
-  reduce: (callback, initVal) => (input) => {
+  reduce: (callback, initVal) => input => {
     const iterator = getIterator(input)
     let index = 0
     let acc = initVal === undefined ? iterator.next() : initVal
@@ -130,23 +130,34 @@ const Collection = {
   },
 }
 
-const callbackWrapper = (name, type) => (...args) => (input) => {
-  if (input == null) {
-    return input
-  }
-
-  if (TYPES.FUNCTION.is(input[name])) {
-    return protos.call(name, ...args)(input)
-  } else if (type.is(input) && polyfills[name]) {
-    return polyfills[name](...args)(input)
-  } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
-    return Collection[name](...args)(input)
-  } else {
-    throw new Error(`The function ${name} does not exist for type ${getConstructorName(input)}`)
+const hasNativeFunction = (input, name) => {
+  try {
+    return Object.prototype.hasOwnProperty.call(input, name) || TYPES.FUNCTION.is(input[name])
+  } catch (e) {
+    return false
   }
 }
 
-const isEmpty = (input) => {
+const callbackWrapper =
+  (name, type) =>
+  (...args) =>
+  input => {
+    if (input == null) {
+      return input
+    }
+
+    if (hasNativeFunction(input, name)) {
+      return protos.call(name, ...args)(input)
+    } else if (type.is(input) && polyfills[name]) {
+      return polyfills[name](...args)(input)
+    } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
+      return Collection[name](...args)(input)
+    } else {
+      throw new Error(`The function ${name} does not exist for type ${getConstructorName(input)}`)
+    }
+  }
+
+const isEmpty = input => {
   if (input == null) {
     return true
   } else if (TYPES.STRING.is(input)) {
@@ -169,14 +180,14 @@ const isEmpty = (input) => {
 module.exports = protos
 
 //Special ES5 support
-module.exports.toArray = () => (input) => {
+module.exports.toArray = () => input => {
   if (input == null) {
     return input
   }
 
   if (TYPES.ARRAY.is(input)) {
     return input
-  } else if (input instanceof dw.util.Collection) {
+  } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
     return Collection.toArray(input)
   } else {
     throw new Error(`Cannot convert input of type ${getConstructorName(input)} into Array`)
@@ -204,9 +215,9 @@ module.exports.remove = protos._call('remove')
 module.exports.removeAll = protos._call('removeAll')
 
 //custom functions
-module.exports.isEmpty = () => (input) => isEmpty(input)
-module.exports.isNotEmpty = () => (input) => !isEmpty(input)
-module.exports.getProp = (key) => (input) => {
+module.exports.isEmpty = () => input => isEmpty(input)
+module.exports.isNotEmpty = () => input => !isEmpty(input)
+module.exports.getProp = key => input => {
   return input != null ? (Object.hasOwnProperty.call(input, key) ? input[key] : undefined) : input
 }
 //for browser static import

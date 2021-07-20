@@ -748,6 +748,14 @@ var Collection = {
   }
 };
 
+var hasNativeFunction = function hasNativeFunction(input, name) {
+  try {
+    return Object.prototype.hasOwnProperty.call(input, name) || TYPES.FUNCTION.is(input[name]);
+  } catch (e) {
+    return false;
+  }
+};
+
 var callbackWrapper = function callbackWrapper(name, type) {
   return function () {
     for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -759,7 +767,7 @@ var callbackWrapper = function callbackWrapper(name, type) {
         return input;
       }
 
-      if (TYPES.FUNCTION.is(input[name])) {
+      if (hasNativeFunction(input, name)) {
         return protos.call.apply(protos, [name].concat(args))(input);
       } else if (type.is(input) && polyfills[name]) {
         return polyfills[name].apply(polyfills, args)(input);
@@ -802,7 +810,7 @@ module.exports.toArray = function () {
 
     if (TYPES.ARRAY.is(input)) {
       return input;
-    } else if (input instanceof dw.util.Collection) {
+    } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
       return Collection.toArray(input);
     } else {
       throw new Error("Cannot convert input of type ".concat(getConstructorName(input), " into Array"));
