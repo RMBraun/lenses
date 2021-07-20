@@ -132,7 +132,7 @@ const Collection = {
 
 const hasNativeFunction = (input, name) => {
   try {
-    return Object.prototype.hasOwnProperty.call(input, name) || TYPES.FUNCTION.is(input[name])
+    return TYPES.FUNCTION.is(input[name])
   } catch (e) {
     return false
   }
