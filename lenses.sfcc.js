@@ -8,5 +8,7 @@ module.exports = {
   ...require('./funcs'),
 }
 
+module.exports.SFCC = require('./sfccHelpers')
+
 //for browser static import
 loadGlobal(module.exports)
