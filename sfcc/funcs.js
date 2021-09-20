@@ -31,13 +31,15 @@ var log = function log(customInput) {
     console.log(prettify ? JSON.stringify(output, null, 2) : JSON.stringify(output));
     return input;
   };
-};
+}; // prettier-ignore
+
 
 var forceBool = function forceBool() {
   return function (input) {
     return !!input;
   };
-};
+}; // prettier-ignore
+
 
 var forceInt = function forceInt() {
   for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
@@ -47,7 +49,8 @@ var forceInt = function forceInt() {
   return function (input) {
     return parseInt.apply(void 0, [input].concat(args));
   };
-};
+}; // prettier-ignore
+
 
 var forceFloat = function forceFloat() {
   for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
@@ -57,13 +60,15 @@ var forceFloat = function forceFloat() {
   return function (input) {
     return parseFloat.apply(void 0, [input].concat(args));
   };
-};
+}; // prettier-ignore
+
 
 var forceNum = function forceNum() {
   return function (input) {
     return input == null ? 0 : Number(input).valueOf();
   };
-};
+}; // prettier-ignore
+
 
 var forceString = function forceString() {
   for (var _len3 = arguments.length, args = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
@@ -73,7 +78,8 @@ var forceString = function forceString() {
   return function (input) {
     return JSON.stringify.apply(JSON, [input].concat(args));
   };
-};
+}; // prettier-ignore
+
 
 var forceParse = function forceParse() {
   for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
@@ -83,7 +89,8 @@ var forceParse = function forceParse() {
   return function (input) {
     return JSON.parse.apply(JSON, [input].concat(args));
   };
-};
+}; // prettier-ignore
+
 
 var forceType = function forceType(T) {
   for (var _len5 = arguments.length, args = new Array(_len5 > 1 ? _len5 - 1 : 0), _key5 = 1; _key5 < _len5; _key5++) {
@@ -106,8 +113,13 @@ module.exports.stringify = function () {
   return func(forceString.apply(void 0, arguments));
 };
 
-module.exports.toBool = func(forceBool);
-module.exports.toNum = func(forceNum);
+module.exports.toBool = function () {
+  return func(forceBool.apply(void 0, arguments));
+};
+
+module.exports.toNum = function () {
+  return func(forceNum.apply(void 0, arguments));
+};
 
 module.exports.toInt = function () {
   return func(forceInt.apply(void 0, arguments));
@@ -163,31 +175,49 @@ var TYPES = {
   STRING: {
     is: function is(input) {
       return isType(input, TYPES.STRING, 'string', String);
+    },
+    toString: function toString() {
+      return 'STRING';
     }
   },
   FUNCTION: {
     is: function is(input) {
       return isType(input, TYPES.FUNCTION, 'function', Function);
+    },
+    toString: function toString() {
+      return 'FUNCTION';
     }
   },
   NUMBER: {
     is: function is(input) {
       return isType(input, TYPES.NUMBER, 'number', Number);
+    },
+    toString: function toString() {
+      return 'NUMBER';
     }
   },
   OBJECT: {
     is: function is(input) {
       return isType(input, TYPES.OBJECT, 'object', Object);
+    },
+    toString: function toString() {
+      return 'OBJECT';
     }
   },
   ARRAY: {
     is: function is(input) {
       return input === TYPES.ARRAY || Array.isArray(input);
+    },
+    toString: function toString() {
+      return 'ARRAY';
     }
   },
   INVALID: {
     is: function is(input) {
       return input === TYPES.INVALID;
+    },
+    toString: function toString() {
+      return 'INVALID';
     }
   }
 }; //for browser static import

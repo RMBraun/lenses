@@ -4,10 +4,10 @@
 /***/ 914:
 /***/ ((module) => {
 
-const getConstructorName = (input) =>
+const getConstructorName = input =>
   input == null ? `${input}` : input.constructor ? input.constructor.name : 'Unknown'
 
-const getOperationType = (operation) =>
+const getOperationType = operation =>
   TYPES.STRING.is(operation) && operation.trim().length > 0
     ? TYPES.STRING
     : TYPES.NUMBER.is(operation) && operation >= 0
@@ -24,22 +24,28 @@ const isType = (input, type, typeofName, constructor) =>
 
 const TYPES = {
   STRING: {
-    is: (input) => isType(input, TYPES.STRING, 'string', String),
+    is: input => isType(input, TYPES.STRING, 'string', String),
+    toString: () => 'STRING',
   },
   FUNCTION: {
-    is: (input) => isType(input, TYPES.FUNCTION, 'function', Function),
+    is: input => isType(input, TYPES.FUNCTION, 'function', Function),
+    toString: () => 'FUNCTION',
   },
   NUMBER: {
-    is: (input) => isType(input, TYPES.NUMBER, 'number', Number),
+    is: input => isType(input, TYPES.NUMBER, 'number', Number),
+    toString: () => 'NUMBER',
   },
   OBJECT: {
-    is: (input) => isType(input, TYPES.OBJECT, 'object', Object),
+    is: input => isType(input, TYPES.OBJECT, 'object', Object),
+    toString: () => 'OBJECT',
   },
   ARRAY: {
-    is: (input) => input === TYPES.ARRAY || Array.isArray(input),
+    is: input => input === TYPES.ARRAY || Array.isArray(input),
+    toString: () => 'ARRAY',
   },
   INVALID: {
-    is: (input) => input === TYPES.INVALID,
+    is: input => input === TYPES.INVALID,
+    toString: () => 'INVALID',
   },
 }
 
@@ -68,6 +74,7 @@ module.exports = {
 
 const { loadGlobal, TYPES, getConstructorName } = __webpack_require__(914)
 
+// prettier-ignore
 const _call = (name) => (...options) => (input) => {
   if (name == null || name.trim() == null) {
     throw new Error('no prototype function name specified')
@@ -84,7 +91,7 @@ const _call = (name) => (...options) => (input) => {
   return input[name](...options)
 }
 
-const isEmpty = (input) => {
+const isEmpty = input => {
   if (input == null) {
     return true
   } else if (TYPES.STRING.is(input)) {
@@ -100,10 +107,11 @@ const isEmpty = (input) => {
 
 //Create common curried version of Array, Object, and String prototypes
 //To be used in conjunction with 'get'
+// prettier-ignore
 module.exports.call = (name, ...options) => (input) => _call(name)(...options)(input)
 module.exports._call = _call
 module.exports.concat = _call('concat')
-module.exports.entries = () => (input) => (input == null ? input : Object.entries(input))
+module.exports.entries = () => input => input == null ? input : Object.entries(input)
 module.exports.every = _call('every')
 module.exports.fill = _call('fill')
 module.exports.filter = _call('filter')
@@ -148,12 +156,14 @@ module.exports.values = () => input => {
     throw new Error(`Input must be of type Object or Array but found ${getConstructorName(input)}`)
   }
 }
+// prettier-ignore
 module.exports.assign = (...options) => input => input == null ? input : Object.assign(input, ...options)
+// prettier-ignore
 module.exports.hasOwnProperty = (name) => input => input == null ? input : Object.prototype.hasOwnProperty.call(input, name)
 module.exports.trim = _call('trim')
 module.exports.toLowerCase = _call('toLowerCase')
 module.exports.toUpperCase = _call('toUpperCase')
-module.exports.is = (b) => (a) => a === b || Object.is(a, b)
+module.exports.is = b => a => a === b || Object.is(a, b)
 module.exports.replace = _call('replace')
 module.exports.replaceAll = _call('replaceAll')
 module.exports.padEnd = _call('padEnd')
@@ -173,10 +183,10 @@ module.exports.toUpperCase = _call('toUpperCase')
 module.exports.trim = _call('trim')
 module.exports.trimStart = _call('trimStart')
 module.exports.trimEnd = _call('trimEnd')
-module.exports.isArray = input => input == null ? input : Array.isArray(input)
+module.exports.isArray = input => (input == null ? input : Array.isArray(input))
 
-module.exports.isEmpty = () => (input) => isEmpty(input)
-module.exports.isNotEmpty = () => (input) => !isEmpty(input)
+module.exports.isEmpty = () => input => isEmpty(input)
+module.exports.isNotEmpty = () => input => !isEmpty(input)
 
 //for browser static import
 loadGlobal(module.exports)

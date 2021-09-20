@@ -4,10 +4,10 @@
 /***/ 914:
 /***/ ((module) => {
 
-const getConstructorName = (input) =>
+const getConstructorName = input =>
   input == null ? `${input}` : input.constructor ? input.constructor.name : 'Unknown'
 
-const getOperationType = (operation) =>
+const getOperationType = operation =>
   TYPES.STRING.is(operation) && operation.trim().length > 0
     ? TYPES.STRING
     : TYPES.NUMBER.is(operation) && operation >= 0
@@ -24,22 +24,28 @@ const isType = (input, type, typeofName, constructor) =>
 
 const TYPES = {
   STRING: {
-    is: (input) => isType(input, TYPES.STRING, 'string', String),
+    is: input => isType(input, TYPES.STRING, 'string', String),
+    toString: () => 'STRING',
   },
   FUNCTION: {
-    is: (input) => isType(input, TYPES.FUNCTION, 'function', Function),
+    is: input => isType(input, TYPES.FUNCTION, 'function', Function),
+    toString: () => 'FUNCTION',
   },
   NUMBER: {
-    is: (input) => isType(input, TYPES.NUMBER, 'number', Number),
+    is: input => isType(input, TYPES.NUMBER, 'number', Number),
+    toString: () => 'NUMBER',
   },
   OBJECT: {
-    is: (input) => isType(input, TYPES.OBJECT, 'object', Object),
+    is: input => isType(input, TYPES.OBJECT, 'object', Object),
+    toString: () => 'OBJECT',
   },
   ARRAY: {
-    is: (input) => input === TYPES.ARRAY || Array.isArray(input),
+    is: input => input === TYPES.ARRAY || Array.isArray(input),
+    toString: () => 'ARRAY',
   },
   INVALID: {
-    is: (input) => input === TYPES.INVALID,
+    is: input => input === TYPES.INVALID,
+    toString: () => 'INVALID',
   },
 }
 
@@ -83,63 +89,65 @@ const getChild = (input, operation, defaultValue, i) => {
 }
 
 //Curried version
-const _set = (...operationInputs) => (input) => {
-  if (!TYPES.OBJECT.is(input) && !TYPES.ARRAY.is(input) && input != null) {
-    throw new Error(
-      `Invalid Set input: expecting an Object, Array, null, or undefined but received ${getConstructorName(input)}`
-    )
+const _set =
+  (...operationInputs) =>
+  input => {
+    if (!TYPES.OBJECT.is(input) && !TYPES.ARRAY.is(input) && input != null) {
+      throw new Error(
+        `Invalid Set input: expecting an Object, Array, null, or undefined but received ${getConstructorName(input)}`
+      )
+    }
+
+    const rawOperations = [...operationInputs]
+    if (input == null) {
+      input = TYPES.STRING.is(getOperationType(rawOperations[0])) ? {} : []
+    }
+
+    if (rawOperations.length < 2) {
+      throw new Error(`Invalid Set: expecting a minimum of 3 arguments but received only ${rawOperations.length + 1}`)
+    }
+
+    const value = rawOperations.pop()
+    let objectRef = input
+
+    rawOperations
+      //operation validation
+      .map((operation, i) => {
+        const operationType = getOperationType(operation)
+
+        if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
+          throw new Error(
+            `Invalid Set operation at index: ${i}: expecting a String or Number but received ${getConstructorName(
+              operation
+            )}`
+          )
+        }
+
+        const nextOperationType = getOperationType(rawOperations[i + 1])
+
+        return {
+          operation,
+          defaultValue: TYPES.STRING.is(nextOperationType) ? {} : [],
+        }
+      })
+      //operation execution
+      .forEach(({ operation, defaultValue }, i, operations) => {
+        if (!TYPES.OBJECT.is(objectRef) && !TYPES.ARRAY.is(objectRef) && !TYPES.FUNCTION.is(objectRef)) {
+          throw new Error(
+            `Invalid set operation at index: ${i}: cannot set nested value on non-Object, non-Array, and non-Function entities`
+          )
+        }
+
+        objectRef = objectRef[operation] =
+          i === operations.length - 1
+            ? TYPES.FUNCTION.is(value)
+              ? value(objectRef[operation])
+              : value
+            : getChild(objectRef, operation, defaultValue, i)
+      })
+
+    return input
   }
-
-  const rawOperations = [...operationInputs]
-  if (input == null) {
-    input = TYPES.STRING.is(getOperationType(rawOperations[0])) ? {} : []
-  }
-
-  if (rawOperations.length < 2) {
-    throw new Error(`Invalid Set: expecting a minimum of 3 arguments but received only ${rawOperations.length + 1}`)
-  }
-
-  const value = rawOperations.pop()
-  let objectRef = input
-
-  rawOperations
-    //operation validation
-    .map((operation, i) => {
-      const operationType = getOperationType(operation)
-
-      if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
-        throw new Error(
-          `Invalid Set operation at index: ${i}: expecting a String or Number but received ${getConstructorName(
-            operation
-          )}`
-        )
-      }
-
-      const nextOperationType = getOperationType(rawOperations[i + 1])
-
-      return {
-        operation,
-        defaultValue: TYPES.STRING.is(nextOperationType) ? {} : [],
-      }
-    })
-    //operation execution
-    .forEach(({ operation, defaultValue }, i, operations) => {
-      if (!TYPES.OBJECT.is(objectRef) && !TYPES.ARRAY.is(objectRef) && !TYPES.FUNCTION.is(objectRef)) {
-        throw new Error(
-          `Invalid set operation at index: ${i}: cannot set nested value on non-Object, non-Array, and non-Function entities`
-        )
-      }
-
-      objectRef = objectRef[operation] =
-        i === operations.length - 1
-          ? TYPES.FUNCTION.is(value)
-            ? value(objectRef[operation])
-            : value
-          : getChild(objectRef, operation, defaultValue, i)
-    })
-
-  return input
-}
 
 const set = (input, ...operationInputs) => _set(...operationInputs)(input)
 

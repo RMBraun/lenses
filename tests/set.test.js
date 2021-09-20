@@ -43,6 +43,6 @@ runTests('set', [
     expect(set([], 0, '0', 1, { a: 1 })).toSoftEqual([{ 0: [null, { a: 1 }] }])
   },
   function setWithModify() {
-    expect(set({ a: { b: { c: 1 } } }, 'a', 'b', 'c', (val) => val + 5)).toSoftEqual({ a: { b: { c: 6 } } })
+    expect(set({ a: { b: { c: 1 } } }, 'a', 'b', 'c', val => val + 5)).toSoftEqual({ a: { b: { c: 6 } } })
   },
 ])

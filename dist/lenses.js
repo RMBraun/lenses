@@ -6,34 +6,43 @@
 
 const { loadGlobal, getConstructorName, TYPES } = __webpack_require__(914)
 
-const func = (userFunction) => {
+const func = userFunction => {
   if (!TYPES.FUNCTION.is(userFunction)) {
     throw new Error(`func must take a function as an input, received ${getConstructorName(userFunction)} instead`)
   }
-  return (input) => (input == null ? input : userFunction(input))
+  return input => (input == null ? input : userFunction(input))
 }
 
-const log = (customInput, prettify = true) => (input) => {
-  const output = customInput ? `${customInput} ${input}` : input
-  console.log(prettify ? JSON.stringify(output, null, 2) : JSON.stringify(output))
-  return input
-}
+const log =
+  (customInput, prettify = true) =>
+  input => {
+    const output = customInput ? `${customInput} ${input}` : input
+    console.log(prettify ? JSON.stringify(output, null, 2) : JSON.stringify(output))
+    return input
+  }
 
+// prettier-ignore
 const forceBool = () => (input) => !!input
+// prettier-ignore
 const forceInt = (...args) => (input) => parseInt(input, ...args)
+// prettier-ignore
 const forceFloat = (...args) => (input) => parseFloat(input, ...args)
+// prettier-ignore
 const forceNum = () => (input) => (input == null ? 0 : Number(input).valueOf())
+// prettier-ignore
 const forceString = (...args) => (input) => JSON.stringify(input, ...args)
+// prettier-ignore
 const forceParse = (...args) => (input) => JSON.parse(input, ...args)
-const forceType = (T, ...args) => (input) => new T(input, ...args)
+// prettier-ignore
+const forceType = (T, ...args) => input => new T(input, ...args)
 
 module.exports.func = func
 module.exports.log = log
 module.exports.parse = (...args) => func(forceParse(...args))
 module.exports.stringify = (...args) => func(forceString(...args))
 
-module.exports.toBool = func(forceBool)
-module.exports.toNum = func(forceNum)
+module.exports.toBool = (...args) => func(forceBool(...args))
+module.exports.toNum = (...args) => func(forceNum(...args))
 module.exports.toInt = (...args) => func(forceInt(...args))
 module.exports.toFloat = (...args) => func(forceFloat(...args))
 module.exports.toType = (T, ...args) => func(forceType(T, ...args))
@@ -61,9 +70,7 @@ const getProperty = (property, source) => {
     return source
   }
 
-  return Object.prototype.hasOwnProperty.call(source, property)
-    ? source[property]
-    : undefined
+  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined
 }
 
 const applyFunction = (func, source, i) => {
@@ -86,6 +93,7 @@ const performOperation = ({ operation, type }, source, i) =>
     : source
 
 //Curried version
+// prettier-ignore
 const _get = (...operationInputs) => (input) => {
   //default return
   if (operationInputs.length === 0) {
@@ -118,7 +126,7 @@ const _get = (...operationInputs) => (input) => {
   )
 }
 
-const defaults = (defaultValue) => (input) => {
+const defaults = defaultValue => input => {
   return input == null ? defaultValue : input
 }
 
@@ -137,10 +145,10 @@ loadGlobal(module.exports)
 /***/ 914:
 /***/ ((module) => {
 
-const getConstructorName = (input) =>
+const getConstructorName = input =>
   input == null ? `${input}` : input.constructor ? input.constructor.name : 'Unknown'
 
-const getOperationType = (operation) =>
+const getOperationType = operation =>
   TYPES.STRING.is(operation) && operation.trim().length > 0
     ? TYPES.STRING
     : TYPES.NUMBER.is(operation) && operation >= 0
@@ -157,22 +165,28 @@ const isType = (input, type, typeofName, constructor) =>
 
 const TYPES = {
   STRING: {
-    is: (input) => isType(input, TYPES.STRING, 'string', String),
+    is: input => isType(input, TYPES.STRING, 'string', String),
+    toString: () => 'STRING',
   },
   FUNCTION: {
-    is: (input) => isType(input, TYPES.FUNCTION, 'function', Function),
+    is: input => isType(input, TYPES.FUNCTION, 'function', Function),
+    toString: () => 'FUNCTION',
   },
   NUMBER: {
-    is: (input) => isType(input, TYPES.NUMBER, 'number', Number),
+    is: input => isType(input, TYPES.NUMBER, 'number', Number),
+    toString: () => 'NUMBER',
   },
   OBJECT: {
-    is: (input) => isType(input, TYPES.OBJECT, 'object', Object),
+    is: input => isType(input, TYPES.OBJECT, 'object', Object),
+    toString: () => 'OBJECT',
   },
   ARRAY: {
-    is: (input) => input === TYPES.ARRAY || Array.isArray(input),
+    is: input => input === TYPES.ARRAY || Array.isArray(input),
+    toString: () => 'ARRAY',
   },
   INVALID: {
-    is: (input) => input === TYPES.INVALID,
+    is: input => input === TYPES.INVALID,
+    toString: () => 'INVALID',
   },
 }
 
@@ -220,6 +234,7 @@ loadGlobal(module.exports)
 
 const { loadGlobal, TYPES, getConstructorName } = __webpack_require__(914)
 
+// prettier-ignore
 const _call = (name) => (...options) => (input) => {
   if (name == null || name.trim() == null) {
     throw new Error('no prototype function name specified')
@@ -236,7 +251,7 @@ const _call = (name) => (...options) => (input) => {
   return input[name](...options)
 }
 
-const isEmpty = (input) => {
+const isEmpty = input => {
   if (input == null) {
     return true
   } else if (TYPES.STRING.is(input)) {
@@ -252,10 +267,11 @@ const isEmpty = (input) => {
 
 //Create common curried version of Array, Object, and String prototypes
 //To be used in conjunction with 'get'
+// prettier-ignore
 module.exports.call = (name, ...options) => (input) => _call(name)(...options)(input)
 module.exports._call = _call
 module.exports.concat = _call('concat')
-module.exports.entries = () => (input) => (input == null ? input : Object.entries(input))
+module.exports.entries = () => input => input == null ? input : Object.entries(input)
 module.exports.every = _call('every')
 module.exports.fill = _call('fill')
 module.exports.filter = _call('filter')
@@ -300,12 +316,14 @@ module.exports.values = () => input => {
     throw new Error(`Input must be of type Object or Array but found ${getConstructorName(input)}`)
   }
 }
+// prettier-ignore
 module.exports.assign = (...options) => input => input == null ? input : Object.assign(input, ...options)
+// prettier-ignore
 module.exports.hasOwnProperty = (name) => input => input == null ? input : Object.prototype.hasOwnProperty.call(input, name)
 module.exports.trim = _call('trim')
 module.exports.toLowerCase = _call('toLowerCase')
 module.exports.toUpperCase = _call('toUpperCase')
-module.exports.is = (b) => (a) => a === b || Object.is(a, b)
+module.exports.is = b => a => a === b || Object.is(a, b)
 module.exports.replace = _call('replace')
 module.exports.replaceAll = _call('replaceAll')
 module.exports.padEnd = _call('padEnd')
@@ -325,10 +343,10 @@ module.exports.toUpperCase = _call('toUpperCase')
 module.exports.trim = _call('trim')
 module.exports.trimStart = _call('trimStart')
 module.exports.trimEnd = _call('trimEnd')
-module.exports.isArray = input => input == null ? input : Array.isArray(input)
+module.exports.isArray = input => (input == null ? input : Array.isArray(input))
 
-module.exports.isEmpty = () => (input) => isEmpty(input)
-module.exports.isNotEmpty = () => (input) => !isEmpty(input)
+module.exports.isEmpty = () => input => isEmpty(input)
+module.exports.isNotEmpty = () => input => !isEmpty(input)
 
 //for browser static import
 loadGlobal(module.exports)
@@ -356,63 +374,65 @@ const getChild = (input, operation, defaultValue, i) => {
 }
 
 //Curried version
-const _set = (...operationInputs) => (input) => {
-  if (!TYPES.OBJECT.is(input) && !TYPES.ARRAY.is(input) && input != null) {
-    throw new Error(
-      `Invalid Set input: expecting an Object, Array, null, or undefined but received ${getConstructorName(input)}`
-    )
+const _set =
+  (...operationInputs) =>
+  input => {
+    if (!TYPES.OBJECT.is(input) && !TYPES.ARRAY.is(input) && input != null) {
+      throw new Error(
+        `Invalid Set input: expecting an Object, Array, null, or undefined but received ${getConstructorName(input)}`
+      )
+    }
+
+    const rawOperations = [...operationInputs]
+    if (input == null) {
+      input = TYPES.STRING.is(getOperationType(rawOperations[0])) ? {} : []
+    }
+
+    if (rawOperations.length < 2) {
+      throw new Error(`Invalid Set: expecting a minimum of 3 arguments but received only ${rawOperations.length + 1}`)
+    }
+
+    const value = rawOperations.pop()
+    let objectRef = input
+
+    rawOperations
+      //operation validation
+      .map((operation, i) => {
+        const operationType = getOperationType(operation)
+
+        if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
+          throw new Error(
+            `Invalid Set operation at index: ${i}: expecting a String or Number but received ${getConstructorName(
+              operation
+            )}`
+          )
+        }
+
+        const nextOperationType = getOperationType(rawOperations[i + 1])
+
+        return {
+          operation,
+          defaultValue: TYPES.STRING.is(nextOperationType) ? {} : [],
+        }
+      })
+      //operation execution
+      .forEach(({ operation, defaultValue }, i, operations) => {
+        if (!TYPES.OBJECT.is(objectRef) && !TYPES.ARRAY.is(objectRef) && !TYPES.FUNCTION.is(objectRef)) {
+          throw new Error(
+            `Invalid set operation at index: ${i}: cannot set nested value on non-Object, non-Array, and non-Function entities`
+          )
+        }
+
+        objectRef = objectRef[operation] =
+          i === operations.length - 1
+            ? TYPES.FUNCTION.is(value)
+              ? value(objectRef[operation])
+              : value
+            : getChild(objectRef, operation, defaultValue, i)
+      })
+
+    return input
   }
-
-  const rawOperations = [...operationInputs]
-  if (input == null) {
-    input = TYPES.STRING.is(getOperationType(rawOperations[0])) ? {} : []
-  }
-
-  if (rawOperations.length < 2) {
-    throw new Error(`Invalid Set: expecting a minimum of 3 arguments but received only ${rawOperations.length + 1}`)
-  }
-
-  const value = rawOperations.pop()
-  let objectRef = input
-
-  rawOperations
-    //operation validation
-    .map((operation, i) => {
-      const operationType = getOperationType(operation)
-
-      if (!TYPES.STRING.is(operationType) && !TYPES.NUMBER.is(operationType)) {
-        throw new Error(
-          `Invalid Set operation at index: ${i}: expecting a String or Number but received ${getConstructorName(
-            operation
-          )}`
-        )
-      }
-
-      const nextOperationType = getOperationType(rawOperations[i + 1])
-
-      return {
-        operation,
-        defaultValue: TYPES.STRING.is(nextOperationType) ? {} : [],
-      }
-    })
-    //operation execution
-    .forEach(({ operation, defaultValue }, i, operations) => {
-      if (!TYPES.OBJECT.is(objectRef) && !TYPES.ARRAY.is(objectRef) && !TYPES.FUNCTION.is(objectRef)) {
-        throw new Error(
-          `Invalid set operation at index: ${i}: cannot set nested value on non-Object, non-Array, and non-Function entities`
-        )
-      }
-
-      objectRef = objectRef[operation] =
-        i === operations.length - 1
-          ? TYPES.FUNCTION.is(value)
-            ? value(objectRef[operation])
-            : value
-          : getChild(objectRef, operation, defaultValue, i)
-    })
-
-  return input
-}
 
 const set = (input, ...operationInputs) => _set(...operationInputs)(input)
 

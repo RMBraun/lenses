@@ -27,31 +27,49 @@ var TYPES = {
   STRING: {
     is: function is(input) {
       return isType(input, TYPES.STRING, 'string', String);
+    },
+    toString: function toString() {
+      return 'STRING';
     }
   },
   FUNCTION: {
     is: function is(input) {
       return isType(input, TYPES.FUNCTION, 'function', Function);
+    },
+    toString: function toString() {
+      return 'FUNCTION';
     }
   },
   NUMBER: {
     is: function is(input) {
       return isType(input, TYPES.NUMBER, 'number', Number);
+    },
+    toString: function toString() {
+      return 'NUMBER';
     }
   },
   OBJECT: {
     is: function is(input) {
       return isType(input, TYPES.OBJECT, 'object', Object);
+    },
+    toString: function toString() {
+      return 'OBJECT';
     }
   },
   ARRAY: {
     is: function is(input) {
       return input === TYPES.ARRAY || Array.isArray(input);
+    },
+    toString: function toString() {
+      return 'ARRAY';
     }
   },
   INVALID: {
     is: function is(input) {
       return input === TYPES.INVALID;
+    },
+    toString: function toString() {
+      return 'INVALID';
     }
   }
 }; //for browser static import

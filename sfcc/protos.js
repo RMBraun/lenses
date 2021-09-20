@@ -27,31 +27,49 @@ var TYPES = {
   STRING: {
     is: function is(input) {
       return isType(input, TYPES.STRING, 'string', String);
+    },
+    toString: function toString() {
+      return 'STRING';
     }
   },
   FUNCTION: {
     is: function is(input) {
       return isType(input, TYPES.FUNCTION, 'function', Function);
+    },
+    toString: function toString() {
+      return 'FUNCTION';
     }
   },
   NUMBER: {
     is: function is(input) {
       return isType(input, TYPES.NUMBER, 'number', Number);
+    },
+    toString: function toString() {
+      return 'NUMBER';
     }
   },
   OBJECT: {
     is: function is(input) {
       return isType(input, TYPES.OBJECT, 'object', Object);
+    },
+    toString: function toString() {
+      return 'OBJECT';
     }
   },
   ARRAY: {
     is: function is(input) {
       return input === TYPES.ARRAY || Array.isArray(input);
+    },
+    toString: function toString() {
+      return 'ARRAY';
     }
   },
   INVALID: {
     is: function is(input) {
       return input === TYPES.INVALID;
+    },
+    toString: function toString() {
+      return 'INVALID';
     }
   }
 }; //for browser static import
@@ -73,10 +91,13 @@ module.exports = {
 
 /***/ }),
 
-/***/ 950:
-/***/ (function(module) {
+/***/ 921:
+/***/ (function(module, __unused_webpack_exports, __webpack_require__) {
 
-module.exports.find = function (callback, thisRef) {
+var _require = __webpack_require__(743),
+    TYPES = _require.TYPES;
+
+var find = function find(callback, thisRef) {
   return function (input) {
     for (var i = 0; i < input.length; i++) {
       if (callback.call(thisRef, input[i], i, input)) {
@@ -86,7 +107,7 @@ module.exports.find = function (callback, thisRef) {
   };
 };
 
-module.exports.map = function (callback, thisRef) {
+var map = function map(callback, thisRef) {
   return function (input) {
     var output = [];
 
@@ -98,7 +119,7 @@ module.exports.map = function (callback, thisRef) {
   };
 };
 
-module.exports.forEach = function (callback, thisRef) {
+var forEach = function forEach(callback, thisRef) {
   return function (input) {
     for (var i = 0; i < input.length; i++) {
       callback.call(thisRef, input[i], i, input);
@@ -106,7 +127,7 @@ module.exports.forEach = function (callback, thisRef) {
   };
 };
 
-module.exports.every = function (callback, thisRef) {
+var every = function every(callback, thisRef) {
   return function (input) {
     for (var i = 0; i < input.length; i++) {
       if (!callback.call(thisRef, input[i], i, input)) {
@@ -118,7 +139,7 @@ module.exports.every = function (callback, thisRef) {
   };
 };
 
-module.exports.some = function (callback, thisRef) {
+var some = function some(callback, thisRef) {
   return function (input) {
     for (var i = 0; i < input.length; i++) {
       if (callback.call(thisRef, input[i], i, input)) {
@@ -130,11 +151,40 @@ module.exports.some = function (callback, thisRef) {
   };
 };
 
-module.exports.getIndex = function (index) {
+var getIndex = function getIndex(index) {
   return function (input) {
     return input[index];
   };
 };
+
+module.exports[TYPES.ARRAY.toString()] = {
+  find: find,
+  map: map,
+  forEach: forEach,
+  every: every,
+  some: some,
+  getIndex: getIndex
+};
+
+var values = function values() {
+  return function (input) {
+    var keys = Object.keys(input);
+    return keys.map(function (key) {
+      return input[key];
+    });
+  };
+};
+
+var entries = function entries() {
+  return function (input) {
+    var keys = Object.keys(input);
+    return keys.map(function (key) {
+      return [key, input[key]];
+    });
+  };
+};
+
+module.exports[TYPES.OBJECT.toString()] = [values, entries];
 
 /***/ }),
 
@@ -144,7 +194,8 @@ module.exports.getIndex = function (index) {
 var _require = __webpack_require__(743),
     loadGlobal = _require.loadGlobal,
     TYPES = _require.TYPES,
-    getConstructorName = _require.getConstructorName;
+    getConstructorName = _require.getConstructorName; // prettier-ignore
+
 
 var _call = function _call(name) {
   return function () {
@@ -184,6 +235,7 @@ var isEmpty = function isEmpty(input) {
   }
 }; //Create common curried version of Array, Object, and String prototypes
 //To be used in conjunction with 'get'
+// prettier-ignore
 
 
 module.exports.call = function (name) {
@@ -255,7 +307,8 @@ module.exports.values = function () {
       throw new Error("Input must be of type Object or Array but found ".concat(getConstructorName(input)));
     }
   };
-};
+}; // prettier-ignore
+
 
 module.exports.assign = function () {
   for (var _len3 = arguments.length, options = new Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
@@ -265,7 +318,8 @@ module.exports.assign = function () {
   return function (input) {
     return input == null ? input : Object.assign.apply(Object, [input].concat(options));
   };
-};
+}; // prettier-ignore
+
 
 module.exports.hasOwnProperty = function (name) {
   return function (input) {
@@ -351,7 +405,7 @@ var _require = __webpack_require__(743),
 
 var protos = __webpack_require__(798);
 
-var polyfills = __webpack_require__(950);
+var polyfills = __webpack_require__(921);
 
 var getIterator = function getIterator(input) {
   return input instanceof dw.util.Iterator ? input : input.iterator();
@@ -426,6 +480,7 @@ var Collection = {
       }
     };
   },
+  // prettier-ignore
   concat: function concat() {
     for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
       args[_key] = arguments[_key];
@@ -505,6 +560,13 @@ var Collection = {
 
       return acc;
     };
+  },
+  sort: function sort(callback) {
+    return function (input) {
+      var iterator = getIterator(input);
+      var output = Collection.toArray(input);
+      return output.sort(callback);
+    };
   }
 };
 
@@ -514,7 +576,8 @@ var hasNativeFunction = function hasNativeFunction(input, name) {
   } catch (e) {
     return false;
   }
-};
+}; // prettier-ignore
+
 
 var callbackWrapper = function callbackWrapper(name, type) {
   return function () {
@@ -529,8 +592,10 @@ var callbackWrapper = function callbackWrapper(name, type) {
 
       if (hasNativeFunction(input, name)) {
         return protos.call.apply(protos, [name].concat(args))(input);
-      } else if (type.is(input) && polyfills[name]) {
-        return polyfills[name].apply(polyfills, args)(input);
+      } else if (type.is(input) && polyfills[type.toString()] && polyfills[type.toString()][name]) {
+        var _polyfills$type$toStr;
+
+        return (_polyfills$type$toStr = polyfills[type.toString()])[name].apply(_polyfills$type$toStr, args)(input);
       } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
         return Collection[name].apply(Collection, args)(input);
       } else {
@@ -587,7 +652,10 @@ module.exports.concat = callbackWrapper('concat', TYPES.ARRAY);
 module.exports.every = callbackWrapper('every', TYPES.ARRAY);
 module.exports.some = callbackWrapper('some', TYPES.ARRAY);
 module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY);
-module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY); //Java class specific prototypes
+module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY); //Object
+
+module.exports.values = callbackWrapper('values', TYPES.OBJECT);
+module.exports.entries = callbackWrapper('entries', TYPES.OBJECT); //Java class specific prototypes
 
 module.exports.contains = protos._call('contains');
 module.exports.containsAll = protos._call('containsAll');

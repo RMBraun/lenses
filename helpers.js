@@ -1,7 +1,7 @@
-const getConstructorName = (input) =>
+const getConstructorName = input =>
   input == null ? `${input}` : input.constructor ? input.constructor.name : 'Unknown'
 
-const getOperationType = (operation) =>
+const getOperationType = operation =>
   TYPES.STRING.is(operation) && operation.trim().length > 0
     ? TYPES.STRING
     : TYPES.NUMBER.is(operation) && operation >= 0
@@ -18,22 +18,28 @@ const isType = (input, type, typeofName, constructor) =>
 
 const TYPES = {
   STRING: {
-    is: (input) => isType(input, TYPES.STRING, 'string', String),
+    is: input => isType(input, TYPES.STRING, 'string', String),
+    toString: () => 'STRING',
   },
   FUNCTION: {
-    is: (input) => isType(input, TYPES.FUNCTION, 'function', Function),
+    is: input => isType(input, TYPES.FUNCTION, 'function', Function),
+    toString: () => 'FUNCTION',
   },
   NUMBER: {
-    is: (input) => isType(input, TYPES.NUMBER, 'number', Number),
+    is: input => isType(input, TYPES.NUMBER, 'number', Number),
+    toString: () => 'NUMBER',
   },
   OBJECT: {
-    is: (input) => isType(input, TYPES.OBJECT, 'object', Object),
+    is: input => isType(input, TYPES.OBJECT, 'object', Object),
+    toString: () => 'OBJECT',
   },
   ARRAY: {
-    is: (input) => input === TYPES.ARRAY || Array.isArray(input),
+    is: input => input === TYPES.ARRAY || Array.isArray(input),
+    toString: () => 'ARRAY',
   },
   INVALID: {
-    is: (input) => input === TYPES.INVALID,
+    is: input => input === TYPES.INVALID,
+    toString: () => 'INVALID',
   },
 }
 

@@ -4,7 +4,7 @@ const { get, defaults } = require('../get')
 
 runTests('get', [
   function emptyInput() {
-    FALSEY_VALUES.forEach((value) => expect(get(value)).toEqual(value))
+    FALSEY_VALUES.forEach(value => expect(get(value)).toEqual(value))
   },
   function noLenses() {
     const input = {}

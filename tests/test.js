@@ -1,4 +1,5 @@
 const TEXT_BREAK = '-----------------'
+const LONG_TEXT_BREAK = '---------------------------------------------------'
 
 const RESULT_TEXT = {
   PASSED: 'PASSED',
@@ -29,36 +30,22 @@ const color = (colorId, text) => {
   }
 }
 
-module.exports = {
-  FALSEY_VALUES: [null, undefined, 0, '', false],
-  expect: (a) => ({
-    toEqual: (b) => {
-      if (a !== b) {
-        throw new Error(`Expected ${JSON.stringify(a)} to equal ${JSON.stringify(b)}`)
-      }
-    },
-    toSoftEqual: (b) => {
-      if (JSON.stringify(a, null, 1) != JSON.stringify(b, null, 1)) {
-        throw new Error(`Expected ${JSON.stringify(a)} to equal ${JSON.stringify(b)}`)
-      }
-    },
-    toFail: (message) => {
-      try {
-        a()
-      } catch {
-        return
-      }
-      throw new Error(message ? message : `Expected to fail but passed`)
-    },
-    toPass: (message) => {
-      try {
-        a()
-      } catch (e) {
-        throw new Error(message ? message : `Expected to pass but failed: ${e}`)
-      }
-    },
-  }),
-  runTests: (title, tests = []) => {
+class Test {
+  constructor() {
+    this.total = 0
+    this.failed = 0
+    this.passed = 0
+  }
+
+  static getInstance() {
+    if (Test.instance == null) {
+      Test.instance = new Test()
+    }
+
+    return Test.instance
+  }
+
+  static runTests(title, tests = []) {
     console.log(color(COLORS.YELLOW, `${TEXT_BREAK}\n${title} : ${tests.length} tests\n${TEXT_BREAK}`))
 
     const failedTests = tests.reduce((acc, testFunc) => {
@@ -80,9 +67,56 @@ module.exports = {
       console.log(`${TEXT_BREAK}\nTest Failures: ${failedTests.length}/${tests.length}\n`)
       console.log(failedTests.map(({ func, error }) => `${func.name}\n${color(COLORS.RED, error)}\n`).join('\n'))
       console.log(TEXT_BREAK)
-    } else {
-      console.log(color(COLORS.GREEN, 'All passed!'))
     }
+
+    //update global stats
+    Test.getInstance().failed = (Test.getInstance().failed || 0) + failedTests.length
+    Test.getInstance().total = (Test.getInstance().total || 0) + tests.length
+    Test.getInstance().passed = (Test.getInstance().passed || 0) + (tests.length - failedTests.length)
+  }
+
+  static printStats() {
+    const failed = Test.getInstance().failed
+    const passed = Test.getInstance().passed
+    const total = Test.getInstance().total
+
+    console.log(color(failed ? COLORS.RED : COLORS.GREEN, `${LONG_TEXT_BREAK}\nTest Results\n${LONG_TEXT_BREAK}`))
+    console.log(color(COLORS.GREEN, `PASSED: ${passed}`))
+    console.log(color(COLORS.RED, `FAILED: ${failed}`))
+    console.log(`TOTAL: ${total}`)
     console.log('\n')
-  },
+  }
+}
+
+module.exports = {
+  FALSEY_VALUES: [null, undefined, 0, '', false],
+  expect: a => ({
+    toEqual: b => {
+      if (a !== b) {
+        throw new Error(`Expected ${JSON.stringify(a)} (${typeof a}) to equal ${JSON.stringify(b)} (${typeof b})`)
+      }
+    },
+    toSoftEqual: b => {
+      if (JSON.stringify(a, null, 1) != JSON.stringify(b, null, 1)) {
+        throw new Error(`Expected ${JSON.stringify(a)} (${typeof a}) to equal ${JSON.stringify(b)} (${typeof b})`)
+      }
+    },
+    toFail: message => {
+      try {
+        a()
+      } catch {
+        return
+      }
+      throw new Error(message ? message : `Expected to fail but passed`)
+    },
+    toPass: message => {
+      try {
+        a()
+      } catch (e) {
+        throw new Error(message ? message : `Expected to pass but failed: ${e}`)
+      }
+    },
+  }),
+  printStats: Test.printStats,
+  runTests: Test.runTests,
 }

@@ -5,9 +5,7 @@ const getProperty = (property, source) => {
     return source
   }
 
-  return Object.prototype.hasOwnProperty.call(source, property)
-    ? source[property]
-    : undefined
+  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined
 }
 
 const applyFunction = (func, source, i) => {
@@ -30,6 +28,7 @@ const performOperation = ({ operation, type }, source, i) =>
     : source
 
 //Curried version
+// prettier-ignore
 const _get = (...operationInputs) => (input) => {
   //default return
   if (operationInputs.length === 0) {
@@ -62,7 +61,7 @@ const _get = (...operationInputs) => (input) => {
   )
 }
 
-const defaults = (defaultValue) => (input) => {
+const defaults = defaultValue => input => {
   return input == null ? defaultValue : input
 }
 

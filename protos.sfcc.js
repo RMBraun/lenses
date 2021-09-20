@@ -6,7 +6,7 @@
 
 const { loadGlobal, TYPES, getConstructorName } = require('./helpers')
 const protos = require('./protos')
-const polyfills = require('./polyfills')
+const polyfills = require('./polyfills.sfcc')
 
 const getIterator = input => (input instanceof dw.util.Iterator ? input : input.iterator())
 
@@ -34,7 +34,7 @@ const Collection = {
   map: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
-    let result = []
+    const result = []
 
     while (iterator.hasNext()) {
       result.push(callback.call(thisRef, iterator.next(), index, input))
@@ -45,7 +45,7 @@ const Collection = {
   filter: (callback, thisRef) => input => {
     const iterator = getIterator(input)
     let index = 0
-    let result = []
+    const result = []
 
     while (iterator.hasNext()) {
       const nextValue = iterator.next()
@@ -65,9 +65,8 @@ const Collection = {
       index++
     }
   },
-  concat:
-    (...args) =>
-    input => {
+  // prettier-ignore
+  concat: (...args) => input => {
       const output = Collection.toArray(input)
 
       for (var i = 0; i < args.length; i++) {
@@ -128,6 +127,12 @@ const Collection = {
 
     return acc
   },
+  sort: callback => input => {
+    const iterator = getIterator(input)
+    const output = Collection.toArray(input)
+
+    return output.sort(callback)
+  },
 }
 
 const hasNativeFunction = (input, name) => {
@@ -138,24 +143,22 @@ const hasNativeFunction = (input, name) => {
   }
 }
 
-const callbackWrapper =
-  (name, type) =>
-  (...args) =>
-  input => {
-    if (input == null) {
-      return input
-    }
-
-    if (hasNativeFunction(input, name)) {
-      return protos.call(name, ...args)(input)
-    } else if (type.is(input) && polyfills[name]) {
-      return polyfills[name](...args)(input)
-    } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
-      return Collection[name](...args)(input)
-    } else {
-      throw new Error(`The function ${name} does not exist for type ${getConstructorName(input)}`)
-    }
+// prettier-ignore
+const callbackWrapper = (name, type) => (...args) => input => {
+  if (input == null) {
+    return input
   }
+
+  if (hasNativeFunction(input, name)) {
+    return protos.call(name, ...args)(input)
+  } else if (type.is(input) && polyfills[type.toString()] && polyfills[type.toString()][name]) {
+    return polyfills[type.toString()][name](...args)(input)
+  } else if (input instanceof dw.util.Collection || input instanceof dw.util.Iterator) {
+    return Collection[name](...args)(input)
+  } else {
+    throw new Error(`The function ${name} does not exist for type ${getConstructorName(input)}`)
+  }
+}
 
 const isEmpty = input => {
   if (input == null) {
@@ -204,6 +207,10 @@ module.exports.every = callbackWrapper('every', TYPES.ARRAY)
 module.exports.some = callbackWrapper('some', TYPES.ARRAY)
 module.exports.getIndex = callbackWrapper('getIndex', TYPES.ARRAY)
 module.exports.reduce = callbackWrapper('reduce', TYPES.ARRAY)
+
+//Object
+module.exports.values = callbackWrapper('values', TYPES.OBJECT)
+module.exports.entries = callbackWrapper('entries', TYPES.OBJECT)
 
 //Java class specific prototypes
 module.exports.contains = protos._call('contains')
