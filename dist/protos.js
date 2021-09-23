@@ -18,9 +18,9 @@ const getOperationType = operation =>
 
 const isType = (input, type, typeofName, constructor) =>
   input === type ||
-  typeof input === typeofName ||
   input instanceof constructor ||
-  getConstructorName(input) === constructor.name
+  getConstructorName(input) === constructor.name ||
+  typeof input === typeofName
 
 const TYPES = {
   STRING: {
@@ -42,6 +42,10 @@ const TYPES = {
   ARRAY: {
     is: input => input === TYPES.ARRAY || Array.isArray(input),
     toString: () => 'ARRAY',
+  },
+  HTML_ELEMENT: {
+    is: input => isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement),
+    toString: () => 'HTML_ELEMENT',
   },
   INVALID: {
     is: input => input === TYPES.INVALID,

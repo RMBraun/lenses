@@ -113,6 +113,14 @@ module.exports.stringify = function () {
   return func(forceString.apply(void 0, arguments));
 };
 
+module.exports.tryParse = function () {
+  try {
+    return func(forceParse.apply(void 0, arguments));
+  } catch (e) {
+    return null;
+  }
+};
+
 module.exports.toBool = function () {
   return func(forceBool.apply(void 0, arguments));
 };
@@ -160,9 +168,12 @@ var _require = __webpack_require__(743),
 var getProperty = function getProperty(property, source) {
   if (source == null) {
     return source;
-  }
+  } //Need to safegued against HTMLElement which does not exist in NodeJs
+  //To prevent test failures only
 
-  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined;
+
+  var hasProperty = typeof HTMLElement !== 'undefined' && TYPES.HTML_ELEMENT.is(source) ? HTMLElement.prototype.hasAttribute.call(source, property) : Object.prototype.hasOwnProperty.call(source, property);
+  return hasProperty ? source[property] : undefined;
 };
 
 var applyFunction = function applyFunction(func, source, i) {
@@ -254,7 +265,7 @@ var getOperationType = function getOperationType(operation) {
 };
 
 var isType = function isType(input, type, typeofName, constructor) {
-  return input === type || _typeof(input) === typeofName || input instanceof constructor || getConstructorName(input) === constructor.name;
+  return input === type || input instanceof constructor || getConstructorName(input) === constructor.name || _typeof(input) === typeofName;
 };
 
 var TYPES = {
@@ -296,6 +307,14 @@ var TYPES = {
     },
     toString: function toString() {
       return 'ARRAY';
+    }
+  },
+  HTML_ELEMENT: {
+    is: function is(input) {
+      return isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement);
+    },
+    toString: function toString() {
+      return 'HTML_ELEMENT';
     }
   },
   INVALID: {

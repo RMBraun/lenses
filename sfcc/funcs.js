@@ -113,6 +113,14 @@ module.exports.stringify = function () {
   return func(forceString.apply(void 0, arguments));
 };
 
+module.exports.tryParse = function () {
+  try {
+    return func(forceParse.apply(void 0, arguments));
+  } catch (e) {
+    return null;
+  }
+};
+
 module.exports.toBool = function () {
   return func(forceBool.apply(void 0, arguments));
 };
@@ -168,7 +176,7 @@ var getOperationType = function getOperationType(operation) {
 };
 
 var isType = function isType(input, type, typeofName, constructor) {
-  return input === type || _typeof(input) === typeofName || input instanceof constructor || getConstructorName(input) === constructor.name;
+  return input === type || input instanceof constructor || getConstructorName(input) === constructor.name || _typeof(input) === typeofName;
 };
 
 var TYPES = {
@@ -210,6 +218,14 @@ var TYPES = {
     },
     toString: function toString() {
       return 'ARRAY';
+    }
+  },
+  HTML_ELEMENT: {
+    is: function is(input) {
+      return isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement);
+    },
+    toString: function toString() {
+      return 'HTML_ELEMENT';
     }
   },
   INVALID: {

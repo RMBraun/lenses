@@ -11,7 +11,14 @@ const getProperty = (property, source) => {
     return source
   }
 
-  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined
+  //Need to safegued against HTMLElement which does not exist in NodeJs
+  //To prevent test failures only
+  const hasProperty =
+    typeof HTMLElement !== 'undefined' && TYPES.HTML_ELEMENT.is(source)
+      ? HTMLElement.prototype.hasAttribute.call(source, property)
+      : Object.prototype.hasOwnProperty.call(source, property)
+
+  return hasProperty ? source[property] : undefined
 }
 
 const applyFunction = (func, source, i) => {
@@ -100,9 +107,9 @@ const getOperationType = operation =>
 
 const isType = (input, type, typeofName, constructor) =>
   input === type ||
-  typeof input === typeofName ||
   input instanceof constructor ||
-  getConstructorName(input) === constructor.name
+  getConstructorName(input) === constructor.name ||
+  typeof input === typeofName
 
 const TYPES = {
   STRING: {
@@ -124,6 +131,10 @@ const TYPES = {
   ARRAY: {
     is: input => input === TYPES.ARRAY || Array.isArray(input),
     toString: () => 'ARRAY',
+  },
+  HTML_ELEMENT: {
+    is: input => isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement),
+    toString: () => 'HTML_ELEMENT',
   },
   INVALID: {
     is: input => input === TYPES.INVALID,

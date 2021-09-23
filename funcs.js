@@ -35,6 +35,14 @@ module.exports.log = log
 module.exports.parse = (...args) => func(forceParse(...args))
 module.exports.stringify = (...args) => func(forceString(...args))
 
+module.exports.tryParse = (...args) => {
+  try {
+    return func(forceParse(...args))
+  } catch (e) {
+    return null
+  }
+}
+
 module.exports.toBool = (...args) => func(forceBool(...args))
 module.exports.toNum = (...args) => func(forceNum(...args))
 module.exports.toInt = (...args) => func(forceInt(...args))
