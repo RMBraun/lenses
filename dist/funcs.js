@@ -110,6 +110,7 @@ const TYPES = {
     is: input => input === TYPES.ARRAY || Array.isArray(input),
     toString: () => 'ARRAY',
   },
+  //TODO: figure out how to handle this correctly
   HTML_ELEMENT: {
     is: input => isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement),
     toString: () => 'HTML_ELEMENT',

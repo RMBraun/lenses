@@ -64,6 +64,7 @@ var TYPES = {
       return 'ARRAY';
     }
   },
+  //TODO: figure out how to handle this correctly
   HTML_ELEMENT: {
     is: function is(input) {
       return isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement);

@@ -5,14 +5,7 @@ const getProperty = (property, source) => {
     return source
   }
 
-  //Need to safegued against HTMLElement which does not exist in NodeJs
-  //To prevent test failures only
-  const hasProperty =
-    typeof HTMLElement !== 'undefined' && TYPES.HTML_ELEMENT.is(source)
-      ? HTMLElement.prototype.hasAttribute.call(source, property)
-      : Object.prototype.hasOwnProperty.call(source, property)
-
-  return hasProperty ? source[property] : undefined
+  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined
 }
 
 const applyFunction = (func, source, i) => {

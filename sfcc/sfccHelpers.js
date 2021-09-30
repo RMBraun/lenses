@@ -12,12 +12,9 @@ var _require = __webpack_require__(743),
 var getProperty = function getProperty(property, source) {
   if (source == null) {
     return source;
-  } //Need to safegued against HTMLElement which does not exist in NodeJs
-  //To prevent test failures only
+  }
 
-
-  var hasProperty = typeof HTMLElement !== 'undefined' && TYPES.HTML_ELEMENT.is(source) ? HTMLElement.prototype.hasAttribute.call(source, property) : Object.prototype.hasOwnProperty.call(source, property);
-  return hasProperty ? source[property] : undefined;
+  return Object.prototype.hasOwnProperty.call(source, property) ? source[property] : undefined;
 };
 
 var applyFunction = function applyFunction(func, source, i) {
@@ -153,6 +150,7 @@ var TYPES = {
       return 'ARRAY';
     }
   },
+  //TODO: figure out how to handle this correctly
   HTML_ELEMENT: {
     is: function is(input) {
       return isType(input, TYPES.HTML_ELEMENT, 'object', HTMLElement);
